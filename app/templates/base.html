@@ -3,6 +3,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>ddweb-vue</title>
+    <script src="../static/jquery.js"></script>
 </html>
 
 <body>
@@ -10,6 +11,10 @@
     <a href="{{ url_for('main.test') }}">main.test</a>
     <a href="{{ url_for('auth.login') }}">Login</a>
     <a href="{{ url_for('auth.logout') }}">Logout</a>
+    <a href="{{ url_for('main.createroom') }}">CreateRoom</a>
+    <a href="{{ url_for('main.room') }}">JoinRoom</a>
+    <a href="{{ url_for('main.confirmroom') }}">ConfirmRoom</a>
+    <a href="{{ url_for('main.start') }}">Start</a>
     {% endblock %}
 
     {% block body %}

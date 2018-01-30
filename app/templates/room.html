@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block body %}
+<div>
+<form action="./joinroom" method="GET">
+    <label for="id">房间号</label>
+    <input type="text" name="id" id="id">
+    <button type="submit">加入房间</button>
+</form>
+<form action="./createroom">
+    <button type="submit">创建房间</button>
+</form>
+</div>
+{% endblock %}

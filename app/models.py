@@ -85,12 +85,42 @@ class Permission:
 class Room(db.Model):
     __tablename__ = 'room'
     id = db.Column('ID', db.Integer, primary_key=True, autoincrement=True)
+    createtime = db.Column(db.DateTime(), default=datetime.utcnow)
+    confirm = db.Column('confirm', db.Integer, default=0)
     user1_id = db.Column(db.Integer, db.ForeignKey('tblUser.ID'))
     user2_id = db.Column(db.Integer, db.ForeignKey('tblUser.ID'))
     user3_id = db.Column(db.Integer, db.ForeignKey('tblUser.ID'))
     user4_id = db.Column(db.Integer, db.ForeignKey('tblUser.ID'))
     user5_id = db.Column(db.Integer, db.ForeignKey('tblUser.ID'))
+    end = db.Column('end', db.Boolean, default=False)
     paujus = db.relationship('Paiju', backref='roomname', lazy='dynamic')
+
+    def userpos(self, user):
+        if self.user1_id == user.id:
+            return 1
+        elif user.id == self.user2_id:
+            return 2
+        elif user.id == self.user3_id:
+            return 4
+        elif user.id == self.user4_id:
+            return 8
+        elif user.id == self.user5_id:
+            return 16
+        else:
+            return 0
+
+    def count(self):
+        if self.user2_id is None:
+            return 1
+        elif self.user3_id is None:
+            return 2
+        elif self.user4_id is None:
+            return 3
+        elif self.user5_id is None:
+            return 4
+        else:
+            return 5
+
 
 
 class Paiju(db.Model):
@@ -98,9 +128,9 @@ class Paiju(db.Model):
     id = db.Column('ID', db.Integer, primary_key=True, autoincrement=True)
     room_id = db.Column(db.Integer, db.ForeignKey('room.ID'))
     paixu = db.Column('paixu', db.String(700))
-    xuhao = db.Column('xuhao', db.Integer)
-    ready = db.Column('ready', db.Boolean)
-    done = db.Column('done', db.Boolean)
+    createtime = db.Column(db.DateTime(), default=datetime.utcnow)
+    ready = db.Column('ready', db.Boolean, default=False)
+    done = db.Column('done', db.Boolean, default=False)
 
 login_manger.anonymous_user = AnonymousUser
 

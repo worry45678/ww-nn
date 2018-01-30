@@ -23,8 +23,8 @@ class DefaultConfig(Config):
     """
     服务器配置
     """
-    DEBUG = False
-    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:water@localhost/rx?charset=utf8'
+    DEBUG = True
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///test.db'
 
 
 class DevelopmentConfig(Config):
