@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>ddweb-vue</title>
+</html>
+
+<body>
+    {% block nav %}
+    <a href="{{ url_for('main.test') }}">main.test</a>
+    <a href="{{ url_for('auth.login') }}">Login</a>
+    <a href="{{ url_for('auth.logout') }}">Logout</a>
+    {% endblock %}
+
+    {% block body %}
+    {% endblock %}
+    {% block scripts %}
+    {% endblock %}
+</body>
