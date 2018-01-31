@@ -1,4 +1,5 @@
 import json
+import math
 from flask import render_template, session, redirect, url_for, request, send_from_directory, jsonify, flash
 from flask_login import current_user, login_required
 from . import main, PUKE, HUASE_NUMBER
@@ -143,13 +144,20 @@ def play():
     """
     准备结束，各玩家获取牌组
     """
-    import math
     player = tblUser.query.filter_by(id=request.args.get('playerid')).first()
     room = Room.query.filter_by(id=session['room_id']).first()
     pos = int(math.log(room.userpos(player))/math.log(2) + 1)
     pai = Paiju.query.filter_by(room_id=session['room_id']).filter_by(finish=0).first()
     paixu = json.loads(pai.paixu)[pos*5-5:pos*5]
     return jsonify(paixu,pos,calcniuniu(paixu),pai.id)
+
+@main.route('/qiangzhuang')
+def qiangzhuang():
+    player = tblUser.query.filter_by(id=request.args.get('playerid')).first()
+    room = Room.query.filter_by(id=session['room_id']).first()
+    pos = int(math.log(room.userpos(player))/math.log(2) + 1)
+    
+    pass
 
 @main.route('/xiazhu')
 def xiazhu():
