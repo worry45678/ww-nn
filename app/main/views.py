@@ -146,7 +146,7 @@ def play():
     """
     player = tblUser.query.filter_by(id=request.args.get('playerid')).first()
     room = Room.query.filter_by(id=session['room_id']).first()
-    pos = int(math.log(room.userpos(player))/math.log(2) + 1)
+    pos = int(math.log(room.userpos(player))/math.log(2) + 1) # 可能不需要，转为4*5的列表再返回更好
     pai = Paiju.query.filter_by(room_id=session['room_id']).filter_by(finish=0).first()
     paixu = json.loads(pai.paixu)[pos*5-5:pos*5]
     return jsonify(paixu,pos,calcniuniu(paixu),pai.id)
@@ -155,9 +155,20 @@ def play():
 def qiangzhuang():
     player = tblUser.query.filter_by(id=request.args.get('playerid')).first()
     room = Room.query.filter_by(id=session['room_id']).first()
-    pos = int(math.log(room.userpos(player))/math.log(2) + 1)
-    
-    pass
+    userpos = room.userpos(player)
+    # pos = int(math.log(userpos)/math.log(2) + 1)
+    pai = Paiju.query.filter_by(room_id=session['room_id']).filter_by(finish=0).first()
+    pai.ready = pai.ready | userpos
+    if pai.ready == 2**room.count()-1:#判断是否所有人都已抢庄，返回抢庄成功的
+        y = [i for i in [pai.zhuang & int(2**(i)) for i in range(5)] if i>0]
+        pai.zhuang = random.choice(y)
+        return pai.zhuang
+    elif request.args.get('qiangzhuang')=='1': #判断该玩家是否抢庄
+        pai.zhuang = pai.zhuang | userpos
+
+    db.session.add(pai)
+    db.session.commit()
+    return 'qiangzhuang end'
 
 @main.route('/xiazhu')
 def xiazhu():

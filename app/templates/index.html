@@ -15,7 +15,8 @@
         <p>[[playerid ]]--[[roomid]]--[[ status ]]--[[ mark ]]</p>
         <p>[[ puke ]]</p>
         用户id:<input type="text" v-model="playerid">
-        是否庄：<input type="text" v-model="iszhuang">
+        <button type="button" @click="qiangzhuang(1)">抢</button>
+        <button type="button" @click="qiangzhuang(0)">不抢</button>
         下注:<input type="text" v=model="xiazhu">
         <button type="button" @click="ready">Ready</button>
         <button type="button" @click="show">Show</button>
@@ -61,6 +62,10 @@ var vm = new Vue({
                     $.get('/show?playerid='+this.playerid, function(data){
                         sucess: self.status='end'
                     })
+                },
+                qiangzhuang: function(y){
+                    self=this
+                    $.get('/qiangzhuang?playerid='+this.playerid+'&qiangzhuang='+y)
                 }
             },
             delimiters: ["[[", "]]"]

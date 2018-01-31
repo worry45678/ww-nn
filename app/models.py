@@ -129,7 +129,8 @@ class Paiju(db.Model):
     room_id = db.Column(db.Integer, db.ForeignKey('room.ID'))
     paixu = db.Column('paixu', db.String(700))
     createtime = db.Column(db.DateTime(), default=datetime.utcnow)
-    ready = db.Column('ready', db.Boolean, default=False)
+    ready = db.Column('ready', db.Integer, default=0)
+    zhuang = db.Column('zhuang', db.Integer, default=0)
     done = db.Column('done', db.Integer, default=0)
     finish = db.Column('finish', db.Boolean, default=False)
 
