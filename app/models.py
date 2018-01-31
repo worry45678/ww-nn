@@ -130,7 +130,8 @@ class Paiju(db.Model):
     paixu = db.Column('paixu', db.String(700))
     createtime = db.Column(db.DateTime(), default=datetime.utcnow)
     ready = db.Column('ready', db.Boolean, default=False)
-    done = db.Column('done', db.Boolean, default=False)
+    done = db.Column('done', db.Integer, default=0)
+    finish = db.Column('finish', db.Boolean, default=False)
 
 login_manger.anonymous_user = AnonymousUser
 

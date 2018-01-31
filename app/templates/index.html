@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block body %}
+<div id="app">
+    <h1>[[ message ]]</h1>
+    <hr>
+    <comp-player></comp-player>
+    <comp-player></comp-player>
+    <comp-player></comp-player>
+    <comp-player></comp-player>
+    
+</div>
+
+<template id="player">
+    <div>
+        <p>[[playerid ]]--[[roomid]]--[[ status ]]--[[ mark ]]</p>
+        <p>[[ puke ]]</p>
+        用户id:<input type="text" v-model="playerid">
+        是否庄：<input type="text" v-model="iszhuang">
+        下注:<input type="text" v=model="xiazhu">
+        <button type="button" @click="ready">Ready</button>
+        <button type="button" @click="show">Show</button>
+        <hr>
+    </div>
+</template>
+{% endblock %}
+{% block scripts %}
+<script>
+var vm = new Vue({
+    el: "#app",
+    delimiters: ["[[", "]]"],
+    data: {
+      message: "Hello Vue!",
+    },
+    components:{
+        'comp-player':{
+            template: "#player",
+            data(){
+                return {
+                    playerid: 1,
+                    roomid: 2,
+                    puke: "wating for puke",
+                    status: 'ready',
+                    mark: 0,
+                    iszhuang: 0,
+                    xiazhu: 1
+                }
+               
+            },
+            methods:{
+                ready(){
+                    self=this
+                    $.get('/play?playerid='+this.playerid, function(data){
+                        sucess: {
+                            self.puke=data;
+                            self.status='start'
+                        }
+                    })
+                },
+                show(){
+                    self=this
+                    $.get('/show?playerid='+this.playerid, function(data){
+                        sucess: self.status='end'
+                    })
+                }
+            },
+            delimiters: ["[[", "]]"]
+        }
+    }
+  })
+</script>
+{% endblock %}
