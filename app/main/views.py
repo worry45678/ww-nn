@@ -32,51 +32,48 @@ def compare(pai1,pai2):
     参数1，庄的牌，参数2，玩家的牌,庄小，返回+，庄大，返回-
     """
     if pai1[0]+pai1[2]/100 < pai2[0]+pai2[2]/100:
-        print(BEI_LV[pai2[0]])
         return BEI_LV[pai2[0]]
     else:
-        print(BEI_LV[pai2[0]])
         return -1 * BEI_LV[pai1[0]]
 
 def calcmark(pai):
     paixu = json.loads(pai.paixu)
     if pai.zhuang == 1:
-        zhuang = pai.user1_xiazhu
-        pai.user2_mark = pai.user2_xiazhu * zhuang * compare(calcniuniu(paixu[0]),calcniuniu(paixu[1]))
-        pai.user3_mark = pai.user3_xiazhu * zhuang * compare(calcniuniu(paixu[0]),calcniuniu(paixu[2]))
-        pai.user4_mark = pai.user4_xiazhu * zhuang * compare(calcniuniu(paixu[0]),calcniuniu(paixu[3]))
-        pai.user5_mark = pai.user5_xiazhu * zhuang * compare(calcniuniu(paixu[0]),calcniuniu(paixu[4]))
-        #pai.user1_mark = -pai.user2_mark-pai.user3_mark-pai.user4_mark-pai.user5_mark
+        zhuang = int(pai.user1_xiazhu)
+        pai.user2_mark = int(pai.user2_xiazhu) * zhuang * compare(calcniuniu(paixu[0]),calcniuniu(paixu[1]))
+        pai.user3_mark = int(pai.user3_xiazhu) * zhuang * compare(calcniuniu(paixu[0]),calcniuniu(paixu[2]))
+        pai.user4_mark = int(pai.user4_xiazhu) * zhuang * compare(calcniuniu(paixu[0]),calcniuniu(paixu[3]))
+        pai.user5_mark = int(pai.user5_xiazhu) * zhuang * compare(calcniuniu(paixu[0]),calcniuniu(paixu[4]))
+        pai.user1_mark = -pai.user2_mark-pai.user3_mark-pai.user4_mark-pai.user5_mark
     elif pai.zhuang == 2:
-        zhuang = pai.user2_xiazhu
-        pai.user1_mark = pai.user1_xiazhu * zhuang * compare(calcniuniu(paixu[1]),calcniuniu(paixu[0]))
-        pai.user3_mark = pai.user3_xiazhu * zhuang * compare(calcniuniu(paixu[1]),calcniuniu(paixu[2]))
-        pai.user4_mark = pai.user4_xiazhu * zhuang * compare(calcniuniu(paixu[1]),calcniuniu(paixu[3]))
-        pai.user5_mark = pai.user5_xiazhu * zhuang * compare(calcniuniu(paixu[1]),calcniuniu(paixu[4]))
-        #pai.user2_mark = -pai.user1_mark-pai.user3_mark-pai.user4_mark-pai.user5_mark
+        zhuang = int(pai.user2_xiazhu)
+        pai.user1_mark = int(pai.user1_xiazhu) * zhuang * compare(calcniuniu(paixu[1]),calcniuniu(paixu[0]))
+        pai.user3_mark = int(pai.user3_xiazhu) * zhuang * compare(calcniuniu(paixu[1]),calcniuniu(paixu[2]))
+        pai.user4_mark = int(pai.user4_xiazhu) * zhuang * compare(calcniuniu(paixu[1]),calcniuniu(paixu[3]))
+        pai.user5_mark = int(pai.user5_xiazhu) * zhuang * compare(calcniuniu(paixu[1]),calcniuniu(paixu[4]))
+        pai.user2_mark = -pai.user1_mark-pai.user3_mark-pai.user4_mark-pai.user5_mark
     elif pai.zhuang == 4:
-        zhuang = pai.user3_xiazhu
-        print(type(pai.user1_xiazhu))
-        pai.user2_mark = pai.user2_xiazhu * zhuang * compare(calcniuniu(paixu[2]),calcniuniu(paixu[1]))
-        pai.user1_mark = pai.user1_xiazhu * zhuang * compare(calcniuniu(paixu[2]),calcniuniu(paixu[0]))
-        pai.user4_mark = pai.user4_xiazhu * zhuang * compare(calcniuniu(paixu[2]),calcniuniu(paixu[3]))
-        pai.user5_mark = pai.user5_xiazhu * zhuang * compare(calcniuniu(paixu[2]),calcniuniu(paixu[4]))
-        print(pai.user1_xiazhu,zhuang,type(pai.user1_xiazhu))
-        #pai.user3_mark = -pai.user1_mark-pai.user2_mark-pai.user4_mark-pai.user5_mark
+        zhuang = int(pai.user3_xiazhu)
+        pai.user2_mark = int(pai.user2_xiazhu) * zhuang * compare(calcniuniu(paixu[2]),calcniuniu(paixu[1]))
+        pai.user1_mark = int(pai.user1_xiazhu) * zhuang * compare(calcniuniu(paixu[2]),calcniuniu(paixu[0]))
+        pai.user4_mark = int(pai.user4_xiazhu) * zhuang * compare(calcniuniu(paixu[2]),calcniuniu(paixu[3]))
+        pai.user5_mark = int(pai.user5_xiazhu) * zhuang * compare(calcniuniu(paixu[2]),calcniuniu(paixu[4]))
+        pai.user3_mark = -pai.user1_mark-pai.user2_mark-pai.user4_mark-pai.user5_mark
+        print(type(pai.user2_mark),pai.user2_mark)
     elif pai.zhuang ==8:
-        zhuang = pai.user4_xiazhu
-        pai.user2_mark = pai.user2_xiazhu * zhuang * compare(calcniuniu(paixu[3]),calcniuniu(paixu[1]))
-        pai.user3_mark = pai.user3_xiazhu * zhuang * compare(calcniuniu(paixu[3]),calcniuniu(paixu[2]))
-        pai.user1_mark = pai.user1_xiazhu * zhuang * compare(calcniuniu(paixu[3]),calcniuniu(paixu[0]))
-        pai.user5_mark = pai.user5_xiazhu * zhuang * compare(calcniuniu(paixu[3]),calcniuniu(paixu[4]))
-        #pai.user4_mark = float(pai.user1_mark)
+        zhuang = int(pai.user4_xiazhu)
+        pai.user2_mark = int(pai.user2_xiazhu) * zhuang * compare(calcniuniu(paixu[3]),calcniuniu(paixu[1]))
+        pai.user3_mark = int(pai.user3_xiazhu) * zhuang * compare(calcniuniu(paixu[3]),calcniuniu(paixu[2]))
+        pai.user1_mark = int(pai.user1_xiazhu) * zhuang * compare(calcniuniu(paixu[3]),calcniuniu(paixu[0]))
+        pai.user5_mark = int(pai.user5_xiazhu) * zhuang * compare(calcniuniu(paixu[3]),calcniuniu(paixu[4]))
+        pai.user4_mark = -pai.user1_mark-pai.user2_mark-pai.user3_mark-pai.user5_mark
     elif pai.zhuang == 16:
-        zhuang = pai.user5_xiazhu
-        pai.user2_mark = pai.user2_xiazhu * zhuang * compare(calcniuniu(paixu[4]),calcniuniu(paixu[1]))
-        pai.user3_mark = pai.user3_xiazhu * zhuang * compare(calcniuniu(paixu[4]),calcniuniu(paixu[2]))
-        pai.user4_mark = pai.user4_xiazhu * zhuang * compare(calcniuniu(paixu[4]),calcniuniu(paixu[3]))
-        pai.user1_mark = pai.user5_xiazhu * zhuang * compare(calcniuniu(paixu[4]),calcniuniu(paixu[0]))
-        #pai.user5_mark = -pai.user1_mark-pai.user2_mark-pai.user3_mark-pai.user4_mark
+        zhuang = int(pai.user5_xiazhu)
+        pai.user2_mark = int(pai.user2_xiazhu) * zhuang * compare(calcniuniu(paixu[4]),calcniuniu(paixu[1]))
+        pai.user3_mark = int(pai.user3_xiazhu) * zhuang * compare(calcniuniu(paixu[4]),calcniuniu(paixu[2]))
+        pai.user4_mark = int(pai.user4_xiazhu) * zhuang * compare(calcniuniu(paixu[4]),calcniuniu(paixu[3]))
+        pai.user1_mark = int(pai.user1_xiazhu) * zhuang * compare(calcniuniu(paixu[4]),calcniuniu(paixu[0]))
+        pai.user5_mark = -pai.user1_mark-pai.user2_mark-pai.user3_mark-pai.user4_mark
     return pai
 
 
@@ -100,6 +97,9 @@ def for_moderators_only():
 def index():
     return render_template('index.html')
 
+@main.route('/phone')
+def phone():
+    return render_template('phone.html')
 
 @main.route('/test')
 def test():
@@ -217,11 +217,17 @@ def qiangzhuang():
     if pai.ready == 2**room.count()-1:#判断是否所有人都已抢庄，返回抢庄成功的
         y = [i for i in [pai.zhuang & int(2**(i)) for i in range(5)] if i>0]
         pai.zhuang = random.choice(y)
+        db.session.add(pai)
+        db.session.commit()
+        return jsonify(pai.zhuang)
     elif request.args.get('qiangzhuang')=='1': #判断该玩家是否抢庄
         pai.zhuang = pai.zhuang | userpos
+        db.session.add(pai)
+        db.session.commit()
+        return 'qiangzhuang'
     db.session.add(pai)
     db.session.commit()
-    return 'qiangzhuang end'
+    return 'no qiangzhuang'
 
 @main.route('/xiazhu')
 def xiazhu():
@@ -264,4 +270,14 @@ def show():
         pai.finish = True
     db.session.add(pai)
     db.session.commit()
+    if room.userpos(player) == 1:
+        return jsonify(pai.user1_mark)
+    elif room.userpos(player) ==2:
+        return jsonify(pai.user2_mark)
+    elif room.userpos(player) == 4:
+        return jsonify(pai.user3_mark)
+    elif room.userpos(player) == 8:
+        return jsonify(pai.user4_mark)
+    elif room.userpos(player) == 16:
+        return jsonify(pai.user5_mark)
     return '亮牌，本局结束'

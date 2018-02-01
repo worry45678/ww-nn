@@ -12,7 +12,7 @@
 
 <template id="player">
     <div>
-        <p>[[playerid ]]--[[roomid]]--[[ status ]]--[[ mark ]]</p>
+        <p>[[playerid ]]--[[roomid]]--[[ status ]]--zhuang:[[zhuang]]--mark:[[ mark ]]</p>
         <p>[[ puke ]]</p>
         用户id:<input type="text" v-model="playerid">
         <button type="button" @click="ready">Ready</button>
@@ -44,7 +44,8 @@ var vm = new Vue({
                     status: 'ready',
                     mark: 0,
                     iszhuang: 0,
-                    xiazhu: 1
+                    xiazhu: 1,
+                    zhuang: null
                 }
                
             },
@@ -71,13 +72,18 @@ var vm = new Vue({
                     self=this
                     $.get('/show',data={
                         playerid: self.playerid
-                    }, function(){
-                        sucess: self.status = 'done'
+                    }, function(data){
+                        sucess: {
+                            self.status = 'done'
+                            self.mark = data
+                        }
                     })
                 },
                 qiangzhuang: function(y){
                     self=this
-                    $.get('/qiangzhuang?playerid='+this.playerid+'&qiangzhuang='+y)
+                    $.get('/qiangzhuang?playerid='+this.playerid+'&qiangzhuang='+y,function(data){
+                        self.zhuang = data
+                    })
                 }
             },
             delimiters: ["[[", "]]"]

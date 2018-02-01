@@ -139,11 +139,11 @@ class Paiju(db.Model):
     user4_xiazhu = db.Column(db.Integer, default=0)
     user5_xiazhu = db.Column(db.Integer, default=0)
     xiazhudone = db.Column('xiazhudone', db.Integer, default=0)
-    user1_mark = db.Column(db.Float, default=0)
-    user2_mark = db.Column(db.Float, default=0)
-    user3_mark = db.Column(db.Float, default=0)
-    user4_mark = db.Column(db.Float, default=0)
-    user5_mark = db.Column(db.Float, default=0)
+    user1_mark = db.Column(db.Integer, default=0)
+    user2_mark = db.Column(db.Integer, default=0)
+    user3_mark = db.Column(db.Integer, default=0)
+    user4_mark = db.Column(db.Integer, default=0)
+    user5_mark = db.Column(db.Integer, default=0)
     
 
 login_manger.anonymous_user = AnonymousUser
