@@ -11,6 +11,8 @@ PUKE = ['fangp01', 'fangp02', 'fangp03', 'fangp04', 'fangp05', 'fangp06', 'fangp
 
 HUASE_NUMBER= {'heit':0.4,'hongt':0.3,'meih':0.2,'fangp':0.1}
 
+BEI_LV = {0:1,1:1,2:1,3:1,4:1,5:1,6:1,7:1,8:2,9:2,10:3}
+
 from . import views # 写在后面，避免循环引用
 
 # 用于模板中调用Permission

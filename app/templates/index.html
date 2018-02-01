@@ -15,10 +15,11 @@
         <p>[[playerid ]]--[[roomid]]--[[ status ]]--[[ mark ]]</p>
         <p>[[ puke ]]</p>
         用户id:<input type="text" v-model="playerid">
+        <button type="button" @click="ready">Ready</button>
         <button type="button" @click="qiangzhuang(1)">抢</button>
         <button type="button" @click="qiangzhuang(0)">不抢</button>
-        下注:<input type="text" v=model="xiazhu">
-        <button type="button" @click="ready">Ready</button>
+        下注:<input type="text" v-model="xiazhu">
+        <button type="button" @click="pai">下注</button>
         <button type="button" @click="show">Show</button>
         <hr>
     </div>
@@ -57,10 +58,21 @@ var vm = new Vue({
                         }
                     })
                 },
-                show(){
+                pai(){
                     self=this
-                    $.get('/show?playerid='+this.playerid, function(data){
-                        sucess: self.status='end'
+                    $.get('/xiazhu',data={
+                        playerid: self.playerid,
+                        xiazhu: self.xiazhu
+                    }, function(data){
+                        sucess: self.status='xiazhu ok'
+                    })
+                },
+                show (){
+                    self=this
+                    $.get('/show',data={
+                        playerid: self.playerid
+                    }, function(){
+                        sucess: self.status = 'done'
                     })
                 },
                 qiangzhuang: function(y){

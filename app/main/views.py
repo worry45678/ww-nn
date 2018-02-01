@@ -2,7 +2,7 @@ import json
 import math
 from flask import render_template, session, redirect, url_for, request, send_from_directory, jsonify, flash
 from flask_login import current_user, login_required
-from . import main, PUKE, HUASE_NUMBER
+from . import main, PUKE, HUASE_NUMBER, BEI_LV
 from datetime import datetime, timedelta
 from .. import db
 from ..models import tblUser, Permission, Room, Paiju
@@ -22,8 +22,62 @@ def calcniuniu(pai):
     for i in itertools.combinations(l2,3):
         if sum(i)%10==0:
             diansu=(sum(l2)-sum(i))%10
+            if diansu == 0:
+                diansu = 10
     l3 = {int(i[-2:])+HUASE_NUMBER[i[0:-2]]:i for i in pai}
-    return diansu,l3[max(l3.keys())]
+    return diansu,l3[max(l3.keys())],max(l3.keys())
+
+def compare(pai1,pai2):
+    """
+    参数1，庄的牌，参数2，玩家的牌,庄小，返回+，庄大，返回-
+    """
+    if pai1[0]+pai1[2]/100 < pai2[0]+pai2[2]/100:
+        print(BEI_LV[pai2[0]])
+        return BEI_LV[pai2[0]]
+    else:
+        print(BEI_LV[pai2[0]])
+        return -1 * BEI_LV[pai1[0]]
+
+def calcmark(pai):
+    paixu = json.loads(pai.paixu)
+    if pai.zhuang == 1:
+        zhuang = pai.user1_xiazhu
+        pai.user2_mark = pai.user2_xiazhu * zhuang * compare(calcniuniu(paixu[0]),calcniuniu(paixu[1]))
+        pai.user3_mark = pai.user3_xiazhu * zhuang * compare(calcniuniu(paixu[0]),calcniuniu(paixu[2]))
+        pai.user4_mark = pai.user4_xiazhu * zhuang * compare(calcniuniu(paixu[0]),calcniuniu(paixu[3]))
+        pai.user5_mark = pai.user5_xiazhu * zhuang * compare(calcniuniu(paixu[0]),calcniuniu(paixu[4]))
+        #pai.user1_mark = -pai.user2_mark-pai.user3_mark-pai.user4_mark-pai.user5_mark
+    elif pai.zhuang == 2:
+        zhuang = pai.user2_xiazhu
+        pai.user1_mark = pai.user1_xiazhu * zhuang * compare(calcniuniu(paixu[1]),calcniuniu(paixu[0]))
+        pai.user3_mark = pai.user3_xiazhu * zhuang * compare(calcniuniu(paixu[1]),calcniuniu(paixu[2]))
+        pai.user4_mark = pai.user4_xiazhu * zhuang * compare(calcniuniu(paixu[1]),calcniuniu(paixu[3]))
+        pai.user5_mark = pai.user5_xiazhu * zhuang * compare(calcniuniu(paixu[1]),calcniuniu(paixu[4]))
+        #pai.user2_mark = -pai.user1_mark-pai.user3_mark-pai.user4_mark-pai.user5_mark
+    elif pai.zhuang == 4:
+        zhuang = pai.user3_xiazhu
+        print(type(pai.user1_xiazhu))
+        pai.user2_mark = pai.user2_xiazhu * zhuang * compare(calcniuniu(paixu[2]),calcniuniu(paixu[1]))
+        pai.user1_mark = pai.user1_xiazhu * zhuang * compare(calcniuniu(paixu[2]),calcniuniu(paixu[0]))
+        pai.user4_mark = pai.user4_xiazhu * zhuang * compare(calcniuniu(paixu[2]),calcniuniu(paixu[3]))
+        pai.user5_mark = pai.user5_xiazhu * zhuang * compare(calcniuniu(paixu[2]),calcniuniu(paixu[4]))
+        print(pai.user1_xiazhu,zhuang,type(pai.user1_xiazhu))
+        #pai.user3_mark = -pai.user1_mark-pai.user2_mark-pai.user4_mark-pai.user5_mark
+    elif pai.zhuang ==8:
+        zhuang = pai.user4_xiazhu
+        pai.user2_mark = pai.user2_xiazhu * zhuang * compare(calcniuniu(paixu[3]),calcniuniu(paixu[1]))
+        pai.user3_mark = pai.user3_xiazhu * zhuang * compare(calcniuniu(paixu[3]),calcniuniu(paixu[2]))
+        pai.user1_mark = pai.user1_xiazhu * zhuang * compare(calcniuniu(paixu[3]),calcniuniu(paixu[0]))
+        pai.user5_mark = pai.user5_xiazhu * zhuang * compare(calcniuniu(paixu[3]),calcniuniu(paixu[4]))
+        #pai.user4_mark = float(pai.user1_mark)
+    elif pai.zhuang == 16:
+        zhuang = pai.user5_xiazhu
+        pai.user2_mark = pai.user2_xiazhu * zhuang * compare(calcniuniu(paixu[4]),calcniuniu(paixu[1]))
+        pai.user3_mark = pai.user3_xiazhu * zhuang * compare(calcniuniu(paixu[4]),calcniuniu(paixu[2]))
+        pai.user4_mark = pai.user4_xiazhu * zhuang * compare(calcniuniu(paixu[4]),calcniuniu(paixu[3]))
+        pai.user1_mark = pai.user5_xiazhu * zhuang * compare(calcniuniu(paixu[4]),calcniuniu(paixu[0]))
+        #pai.user5_mark = -pai.user1_mark-pai.user2_mark-pai.user3_mark-pai.user4_mark
+    return pai
 
 
 @main.route('/admin')
@@ -131,10 +185,11 @@ def start():
             new_puke = PUKE.copy()
             for i in range(20):
                 random.shuffle(new_puke)
-                new_paiju = Paiju(room_id=room.id, paixu=json.dumps(new_puke))
+                r = [new_puke[0:5],new_puke[5:10],new_puke[10:15],new_puke[15:20],new_puke[20:25]]
+                new_paiju = Paiju(room_id=room.id, paixu=json.dumps(r))
                 db.session.add(new_paiju)
                 db.session.commit()
-            return jsonify(new_puke)
+            return jsonify(r)
         else:
             return 'somebody not ready'
     return 'start'
@@ -146,9 +201,9 @@ def play():
     """
     player = tblUser.query.filter_by(id=request.args.get('playerid')).first()
     room = Room.query.filter_by(id=session['room_id']).first()
-    pos = int(math.log(room.userpos(player))/math.log(2) + 1) # 可能不需要，转为4*5的列表再返回更好
+    pos = int(math.log(room.userpos(player))/math.log(2)) # 可能不需要，转为4*5的列表再返回更好
     pai = Paiju.query.filter_by(room_id=session['room_id']).filter_by(finish=0).first()
-    paixu = json.loads(pai.paixu)[pos*5-5:pos*5]
+    paixu = json.loads(pai.paixu)[pos]
     return jsonify(paixu,pos,calcniuniu(paixu),pai.id)
 
 @main.route('/qiangzhuang')
@@ -162,22 +217,44 @@ def qiangzhuang():
     if pai.ready == 2**room.count()-1:#判断是否所有人都已抢庄，返回抢庄成功的
         y = [i for i in [pai.zhuang & int(2**(i)) for i in range(5)] if i>0]
         pai.zhuang = random.choice(y)
-        return pai.zhuang
     elif request.args.get('qiangzhuang')=='1': #判断该玩家是否抢庄
         pai.zhuang = pai.zhuang | userpos
-
     db.session.add(pai)
     db.session.commit()
     return 'qiangzhuang end'
 
 @main.route('/xiazhu')
 def xiazhu():
-    pass
+    """
+    下注，庄先确定倍数，前端获取到庄的倍数后，其他玩家才可以下注
+    """
+    player = tblUser.query.filter_by(id=request.args.get('playerid')).first()
+    room = Room.query.filter_by(id=session['room_id']).first()
+    userpos = room.userpos(player)
+    pai = Paiju.query.filter_by(room_id=session['room_id']).filter_by(finish=0).first()
+    pai.xiazhudone = pai.xiazhudone | userpos
+    if userpos == 1:
+        pai.user1_xiazhu = request.args.get('xiazhu')
+    elif userpos == 2:
+        pai.user2_xiazhu = request.args.get('xiazhu')
+    elif userpos == 4:
+        pai.user3_xiazhu = request.args.get('xiazhu')
+    elif userpos == 8:
+        pai.user4_xiazhu = request.args.get('xiazhu')
+    elif userpos == 16:
+        pai.user5_xiazhu = request.args.get('xiazhu')
+    else:
+        return '无该玩家'
+    if pai.xiazhudone == 2**room.count()-1:#  下注结束，计算得分
+        calcmark(pai)
+    db.session.add(pai)
+    db.session.commit()
+    return '下注成功'
 
 @main.route('/show')
 def show():
     """
-    各玩家亮牌，本局结束，Paiju 中finish字段标记结束
+    各玩家亮牌，本局结束，算分，Paiju 中finish字段标记结束
     """
     player = tblUser.query.filter_by(id=request.args.get('playerid')).first()
     room = Room.query.filter_by(id=session['room_id']).first()
