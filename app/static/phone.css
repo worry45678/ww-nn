@@ -14,8 +14,22 @@ html, body {
     background: -moz-radial-gradient(rgb(16, 173, 1), rgb(6, 110, 6), rgb(3, 82, 3)); /* Firefox 3.6 - 15 */
     background: radial-gradient(rgb(14, 150, 2), rgb(6, 110, 6), rgb(3, 61, 3)); /* 标准的语法（必须放在最后） */
 }
-
+#test {
+    width: 40%;
+    position: absolute;
+    left: 0px;
+    bottom: 0px;
+    z-index: 100;
+}
+#action {
+    position: absolute;
+    right: 0px;
+    bottom: 0px;
+    width: 20%;
+    z-index: 100;
+}
 #player1 {
+    z-index: 0;
     width: 50%;
     height: 20%;
     position: absolute;

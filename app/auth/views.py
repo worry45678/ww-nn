@@ -1,4 +1,4 @@
-from flask import render_template, redirect, request, url_for, flash
+from flask import render_template, redirect, request, url_for, flash,jsonify
 from . import auth
 from flask_login import login_user, logout_user, login_required, current_user #flask_login 中管理用户登陆的函数
 from ..models import tblUser
@@ -11,7 +11,7 @@ def login():
         user = tblUser.query.filter_by(name=request.form.get('username')).first()
         if user is not None and user.verify_password(request.form.get('password')):
             login_user(user)
-            return redirect(request.args.get('next') or url_for('main.test'))
+            return jsonify(user.id)
         print(user)
     return render_template('login.html')
 

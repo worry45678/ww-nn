@@ -15,14 +15,12 @@ class tblUser(UserMixin, db.Model):
     money = db.Column('money', db.Integer)
     photo = db.Column('photo', db.String(128))
     openid = db.Column('openid', db.String(20))
-    """
-    room1s = db.relationship('Room', backref='user1', lazy='dynamic')
-    room2s = db.relationship('Room', backref='user2', lazy='dynamic')
-    room3s = db.relationship('Room', backref='user3', lazy='dynamic')
-    room4s = db.relationship('Room', backref='user4', lazy='dynamic')
-    room5s = db.relationship('Room', backref='user5', lazy='dynamic')
-    """
-    
+    room1s = db.relationship('Room', backref='user1', lazy='dynamic', primaryjoin='(tblUser.id==Room.user1_id)')
+    room2s = db.relationship('Room', backref='user2', lazy='dynamic', primaryjoin='(tblUser.id==Room.user2_id)')
+    room3s = db.relationship('Room', backref='user3', lazy='dynamic', primaryjoin='(tblUser.id==Room.user3_id)')
+    room4s = db.relationship('Room', backref='user4', lazy='dynamic', primaryjoin='(tblUser.id==Room.user4_id)')
+    room5s = db.relationship('Room', backref='user5', lazy='dynamic', primaryjoin='(tblUser.id==Room.user5_id)')
+
     def __init__(self, **kwargs):
         super(tblUser, self).__init__(**kwargs)
         if self.role_id is None: # 如果名称为admin，则设为管理员
@@ -129,8 +127,22 @@ class Room(db.Model):
             return 5
     
     def __repr__(self):
-        return '''{"id": "%s","createtime":"%s","confirm":"%s","user1_id":"%s","user2_id":"%s","user3_id":"%s","user4_id":"%s","user5_id":"%s","end":"%s"}''' \
-               %(self.id,self.createtime,self.confirm, self.user1_id, self.user2_id, self.user3_id, self.user4_id, self.user5_id, self.end) 
+        user1 = self.user1.name if self.user1 else None
+        user2 = self.user2.name if self.user2 else None
+        user3 = self.user3.name if self.user3 else None
+        user4 = self.user4.name if self.user4 else None
+        user5 = self.user5.name if self.user5 else None
+        return '''{"id": "%s","createtime":"%s","confirm":"%s","user1":"%s","user2":"%s","user3":"%s","user4":"%s","user5":"%s","end":"%s"}''' \
+               %(self.id,self.createtime,self.confirm, user1, user2, user3, user4, user5, self.end) 
+
+    def status(self):
+        user1 = self.user1.name if self.user1 else None
+        user2 = self.user2.name if self.user2 else None
+        user3 = self.user3.name if self.user3 else None
+        user4 = self.user4.name if self.user4 else None
+        user5 = self.user5.name if self.user5 else None
+        return '''{"id": %d,"createtime":"%s","confirm":%d,"users":["%s","%s","%s","%s","%s"],"end":"%s","count":%d}''' \
+                %(self.id,self.createtime,self.confirm, user1, user2, user3, user4, user5, self.end, self.count()) 
 
 class Paiju(db.Model):
     __table__name = 'paiju'

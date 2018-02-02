@@ -17,30 +17,47 @@
     <a href="{{ url_for('main.room') }}">JoinRoom</a>
     <a href="{{ url_for('main.confirmroom') }}">ConfirmRoom</a>
     <a href="{{ url_for('main.start') }}">Start</a>
+    <div id="test">
+        <p>[[ status ]]</p>
+        <hr>
+        <input type="text" v-model="username" placeholder="username">
+        <input type="text" v-model="password" placeholder="password">
+        <button type="button" @click="login">Login</button>
+        <input type="text" v-model="roomid" placeholder="roomid">
+        <button type="button" @click="join">Join Room</button>
+    </div>
+    <div id="action">
+        <button type="button" v-show="notready" @click="ready">准备</button>
+        <button>抢庄</button>
+        <button>下注</button>
+        <button>亮牌</button>
+    </div>
     <div id="player1">
-        <comp-player></comp-player>
+        <comp-player ref="player1" :player-name="players[0]" :my-pai="pai[0]"></comp-player>
     </div>
     <div id="player2">
-        <comp-player></comp-player>
+        <comp-player ref="player2" :player-name="players[1]" :my-pai="pai[1]"></comp-player>
     </div>
     <div id="player3">
-        <comp-player></comp-player>
+        <comp-player ref="player3" :player-name="players[2]" :my-pai="pai[2]"></comp-player>
     </div>
     <div id="player4">
-        <comp-player></comp-player>
+        <comp-player ref="player4" :player-name="players[3]" :my-pai="pai[3]"></comp-player>
     </div>
     </div>
 
 <template id="player">
     <div>
-        用户id:<input type="text" v-model="playerid">
+        <p>玩家：[[ playerName ]]</p>
+        <!--
         <button type="button" @click="ready">Ready</button>
         <button type="button" @click="qiangzhuang(1)">抢</button>
         <button type="button" @click="qiangzhuang(0)">不抢</button>
         下注:<input type="text" v-model="xiazhu">
         <button type="button" @click="pai">下注</button>
-        <button type="button" @click="show">Show</button>
+        <button type="button" @click="show">Show</button>-->
         <hr>
+        <p>[[ myPai ]]</p>
     </div>
 </template>
 
@@ -50,16 +67,90 @@
             delimiters: ["[[", "]]"],
             data() {
                 return {
-                    msg: 'message'
+                    msg: 'message',
+                    username: null,
+                    password: null,
+                    //roomid: null,
+                    //playerid: null,
+                    playerid: 2, // 初始值，测试用
+                    roomid: 62481,
+                    status: null,
+                    notready: true,
+                    pai: [],
+                    juShu: 0
+                }
+            },
+            computed:{
+                players: function(){
+                    var self = this
+                    if(this.status){
+                        var playerList = self.status[0].users
+                        for (i=0;i<self.status[1];i++){
+                            playerList.push(playerList.shift())
+                        }
+                        return playerList
+                    } else{
+                        return []
+                    }
                 }
             },
             methods:{
+                login: function(){
+                    var self = this
+                    $.post('./auth/login',data={username:self.username,password:self.password},
+                    function(data){
+                        self.playerid = data
+                    })
+                },
+                join: function() {
+                    var self = this
+                    $.get('./joinroom',data={roomid: self.roomid},function(data){
+                        sucess:{
+                            self.status = data
+                        }
+                    })
+                },
+                getStatus: function(){
+                    var self = this
+                    if (self.roomid && self.playerid){
+                        $.get('./status', data={roomid:self.roomid,playerid:self.playerid}, function(data){
+                            sucess:{
+                                self.status = [JSON.parse(data[0]),data[1]]
+                            }
+                        })
+                    }
+                },
+                ready: function(){
+                    var self = this
+                    if (self.status[0].confirm === Math.pow(self.status[0].count,2)-1){
+                        $.get('/play', data={playerid:self.playerid}, function(data){
+                            sucess: {
+                                self.pai=data[0];
+                                for (i=0;i<self.status[1];i++){
+                                    self.pai.push(self.pai.shift())
+                                }
+                                self.juShu = data[1]
+                            }
+                        })
+                    }
 
+                }
             },
             components: {
                 'comp-player':{
-                    template: '#player'
+                    template: '#player',
+                    delimiters: ["[[", "]]"],
+                    props: ["playerName","myPai"],
+                    data () {
+                        return {
+                            
+                        }
+                    }
                 }
+            },
+            mounted: function(){
+                setInterval(this.getStatus,3000)
+
             }
         })
     </script>

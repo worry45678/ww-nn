@@ -132,8 +132,8 @@ def createroom():
 @main.route('/joinroom', methods=['GET', 'POST'])
 def joinroom():
     if request.method == 'GET':
-        if Room.query.filter_by(id=request.args.get('id')).first():
-            room = Room.query.filter_by(id=request.args.get('id')).first()
+        if Room.query.filter_by(id=request.args.get('roomid')).first():
+            room = Room.query.filter_by(id=request.args.get('roomid')).first()
             if room.userpos(current_user) == 0:
                 if room.user2_id is None:
                     room.user2_id = current_user.id
@@ -201,10 +201,10 @@ def play():
     """
     player = tblUser.query.filter_by(id=request.args.get('playerid')).first()
     room = Room.query.filter_by(id=session['room_id']).first()
-    pos = int(math.log(room.userpos(player))/math.log(2)) # 可能不需要，转为4*5的列表再返回更好
     pai = Paiju.query.filter_by(room_id=session['room_id']).filter_by(finish=0).first()
-    paixu = json.loads(pai.paixu)[pos]
-    return jsonify(paixu,pos,calcniuniu(paixu),pai.id)
+    pai0 = Paiju.query.filter_by(room_id=session['room_id']).first()
+    paixu = json.loads(pai.paixu)
+    return jsonify(paixu,pai.id-pai0.id+1)
 
 @main.route('/qiangzhuang')
 def qiangzhuang():
@@ -281,3 +281,13 @@ def show():
     elif room.userpos(player) == 16:
         return jsonify(pai.user5_mark)
     return '亮牌，本局结束'
+
+@main.route('/status')
+def status():
+    """
+    返回房间状态，接受roomid，userid为参数
+    """
+    player = tblUser.query.filter_by(id=request.args.get('playerid')).first()
+    room = Room.query.filter_by(id=request.args.get('roomid')).first()
+    pos = math.log(room.userpos(player))/math.log(2)
+    return jsonify(room.status(),pos)
