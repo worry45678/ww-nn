@@ -127,7 +127,7 @@ def createroom():
     db.session.add(room)
     db.session.commit()
     session['room_id'] = room.id
-    return 'createroom'
+    return jsonify(room.id)
 
 @main.route('/joinroom', methods=['GET', 'POST'])
 def joinroom():

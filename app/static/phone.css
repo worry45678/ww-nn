@@ -1,0 +1,47 @@
+
+
+html, body {
+    height: 100%;
+    margin: 0px;
+    padding: 0px;
+}
+
+#app {
+    color: #eee;
+    height: 100%;
+    background: -webkit-radial-gradient(rgb(16, 173, 1), rgb(6, 110, 6), rgb(3, 82, 3)); /* Safari 5.1 - 6.0 */
+    background: -o-radial-gradient(rgb(16, 173, 1), rgb(6, 110, 6), rgb(3, 82, 3)); /* Opera 11.6 - 12.0 */
+    background: -moz-radial-gradient(rgb(16, 173, 1), rgb(6, 110, 6), rgb(3, 82, 3)); /* Firefox 3.6 - 15 */
+    background: radial-gradient(rgb(14, 150, 2), rgb(6, 110, 6), rgb(3, 61, 3)); /* 标准的语法（必须放在最后） */
+}
+
+#player1 {
+    width: 50%;
+    height: 20%;
+    position: absolute;
+    bottom: 0px;
+    left: 25%
+}
+#player2 {
+    width: 200px;
+    height: 150px;
+    position: absolute;
+    top: 40%;
+    left: -25px;
+    transform: rotateZ(90deg)
+}
+#player3 {
+    width: 50%;
+    height: 150px;
+    position: absolute;
+    top: 0px;
+    left: 25%;
+}
+#player4 {
+    width: 200px;
+    height: 150px;
+    position: absolute;
+    top: 40%;
+    right: -25px;
+    transform: rotateZ(-90deg)
+}

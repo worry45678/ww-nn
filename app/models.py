@@ -15,7 +15,14 @@ class tblUser(UserMixin, db.Model):
     money = db.Column('money', db.Integer)
     photo = db.Column('photo', db.String(128))
     openid = db.Column('openid', db.String(20))
-
+    """
+    room1s = db.relationship('Room', backref='user1', lazy='dynamic')
+    room2s = db.relationship('Room', backref='user2', lazy='dynamic')
+    room3s = db.relationship('Room', backref='user3', lazy='dynamic')
+    room4s = db.relationship('Room', backref='user4', lazy='dynamic')
+    room5s = db.relationship('Room', backref='user5', lazy='dynamic')
+    """
+    
     def __init__(self, **kwargs):
         super(tblUser, self).__init__(**kwargs)
         if self.role_id is None: # 如果名称为admin，则设为管理员
@@ -120,8 +127,10 @@ class Room(db.Model):
             return 4
         else:
             return 5
-
-
+    
+    def __repr__(self):
+        return '''{"id": "%s","createtime":"%s","confirm":"%s","user1_id":"%s","user2_id":"%s","user3_id":"%s","user4_id":"%s","user5_id":"%s","end":"%s"}''' \
+               %(self.id,self.createtime,self.confirm, self.user1_id, self.user2_id, self.user3_id, self.user4_id, self.user5_id, self.end) 
 
 class Paiju(db.Model):
     __table__name = 'paiju'

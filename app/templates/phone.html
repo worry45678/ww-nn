@@ -5,10 +5,11 @@
     <title>ddweb-vue</title>
     <script src="../static/jquery.js"></script>
     <script src="../static/vue.js"></script>
+    <link rel="stylesheet" href="../static/phone.css">
 </html>
 
 <body>
-
+    <div id="app">
     <a href="{{ url_for('main.test') }}">main.test</a>
     <a href="{{ url_for('auth.login') }}">Login</a>
     <a href="{{ url_for('auth.logout') }}">Logout</a>
@@ -16,14 +17,22 @@
     <a href="{{ url_for('main.room') }}">JoinRoom</a>
     <a href="{{ url_for('main.confirmroom') }}">ConfirmRoom</a>
     <a href="{{ url_for('main.start') }}">Start</a>
-    <div id="app">
-        [[ msg ]]
+    <div id="player1">
+        <comp-player></comp-player>
+    </div>
+    <div id="player2">
+        <comp-player></comp-player>
+    </div>
+    <div id="player3">
+        <comp-player></comp-player>
+    </div>
+    <div id="player4">
+        <comp-player></comp-player>
+    </div>
     </div>
 
-<template>
+<template id="player">
     <div>
-        <p>[[playerid ]]--[[roomid]]--[[ status ]]--zhuang:[[zhuang]]--mark:[[ mark ]]</p>
-        <p>[[ puke ]]</p>
         用户id:<input type="text" v-model="playerid">
         <button type="button" @click="ready">Ready</button>
         <button type="button" @click="qiangzhuang(1)">抢</button>
@@ -42,6 +51,14 @@
             data() {
                 return {
                     msg: 'message'
+                }
+            },
+            methods:{
+
+            },
+            components: {
+                'comp-player':{
+                    template: '#player'
                 }
             }
         })
