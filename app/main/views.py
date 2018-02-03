@@ -197,7 +197,7 @@ def start():
 @main.route('/play')
 def play():
     """
-    准备结束，各玩家获取牌组
+    准备结束，各玩家获取牌组,待修改，只返回本玩家的前4张牌，亮牌时再全部返回
     """
     player = tblUser.query.filter_by(id=request.args.get('playerid')).first()
     room = Room.query.filter_by(id=session['room_id']).first()
@@ -224,7 +224,7 @@ def qiangzhuang():
         pai.zhuang = pai.zhuang | userpos
         db.session.add(pai)
         db.session.commit()
-        return 'qiangzhuang'
+        return '%s qiangzhuang' %userpos
     db.session.add(pai)
     db.session.commit()
     return 'no qiangzhuang'
@@ -271,15 +271,15 @@ def show():
     db.session.add(pai)
     db.session.commit()
     if room.userpos(player) == 1:
-        return jsonify(pai.user1_mark)
+        return pai.marks()
     elif room.userpos(player) ==2:
-        return jsonify(pai.user2_mark)
+        return pai.marks()
     elif room.userpos(player) == 4:
-        return jsonify(pai.user3_mark)
+        return pai.marks()
     elif room.userpos(player) == 8:
-        return jsonify(pai.user4_mark)
+        return pai.marks()
     elif room.userpos(player) == 16:
-        return jsonify(pai.user5_mark)
+        return pai.marks()
     return '亮牌，本局结束'
 
 @main.route('/status')

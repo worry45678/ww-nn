@@ -4,6 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin, AnonymousUserMixin
 from . import login_manger
 from datetime import datetime
+import math
 
 class tblUser(UserMixin, db.Model):
     __tablename__ = "tblUser"
@@ -98,7 +99,7 @@ class Room(db.Model):
     user4_id = db.Column(db.Integer, db.ForeignKey('tblUser.ID'))
     user5_id = db.Column(db.Integer, db.ForeignKey('tblUser.ID'))
     end = db.Column('end', db.Boolean, default=False)
-    paujus = db.relationship('Paiju', backref='roomname', lazy='dynamic')
+    paijus = db.relationship('Paiju', backref='roomname', lazy='dynamic')
 
     def userpos(self, user):
         if self.user1_id == user.id:
@@ -141,8 +142,13 @@ class Room(db.Model):
         user3 = self.user3.name if self.user3 else None
         user4 = self.user4.name if self.user4 else None
         user5 = self.user5.name if self.user5 else None
-        return '''{"id": %d,"createtime":"%s","confirm":%d,"users":["%s","%s","%s","%s","%s"],"end":"%s","count":%d}''' \
-                %(self.id,self.createtime,self.confirm, user1, user2, user3, user4, user5, self.end, self.count()) 
+        running_paiju = self.paijus.filter_by(finish=0).first()
+        if running_paiju.ready == 2**self.count()-1:
+            zhuang = math.log(running_paiju.zhuang)/math.log(2)
+        else:
+            zhuang = -1
+        return '''{"id": %d,"createtime":"%s","confirm":%d,"users":["%s","%s","%s","%s","%s"],"end":"%s","count":%d,"zhuang":%d}''' \
+                %(self.id,self.createtime,self.confirm, user1, user2, user3, user4, user5, self.end, self.count(), zhuang) 
 
 class Paiju(db.Model):
     __table__name = 'paiju'
@@ -166,6 +172,9 @@ class Paiju(db.Model):
     user4_mark = db.Column(db.Integer, default=0)
     user5_mark = db.Column(db.Integer, default=0)
     
+    def marks(self):
+        return '''{"id":%d,"marks":["%d","%d","%d","%d","%d"]}'''\
+                %(self.id, self.user1_mark, self.user2_mark, self.user3_mark, self.user4_mark, self.user5_mark)
 
 login_manger.anonymous_user = AnonymousUser
 

@@ -5,7 +5,10 @@ html, body {
     margin: 0px;
     padding: 0px;
 }
-
+p {
+    margin: 0px;
+    padding: 2px;
+}
 #app {
     color: #eee;
     height: 100%;
@@ -31,7 +34,7 @@ html, body {
 #player1 {
     z-index: 0;
     width: 50%;
-    height: 20%;
+    height: 150px;
     position: absolute;
     bottom: 0px;
     left: 25%
@@ -59,3 +62,31 @@ html, body {
     right: -25px;
     transform: rotateZ(-90deg)
 }
+
+
+
+.card {
+    /*font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;*/
+    background-color: #fff;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    -moz-box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    -webkit-box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    float: left;
+    height: 90px;
+    position: absolute;
+    color: rgb(29, 29, 29);
+    width: 60px;
+}
+  .card.fangp, .card.hongt { color: red; }
+  .card.meih, .card.heit { color: rgb(27, 27, 27); }
+  
+  .card .corner { line-height: 1; overflow: hidden; position: absolute; text-align: center; }
+  .card .corner span { display: block; font-size: 20px; font-weight: bold; }
+  .card .corner .number { font-size: 18px;}
+  .card .corner.top { left: 3px; top: 3px; }
+  .card .corner.bottom { bottom: 3px; right: 3px; -moz-transform: rotate(180deg); -webkit-transform: rotate(180deg); }
+  
+  .card .suit { font-size: 30px; font-weight: bold; overflow: hidden; position: absolute; text-align: center; }
+
+  .card .middle_center { left: 19px; top: 22px; }
