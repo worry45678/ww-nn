@@ -49,6 +49,9 @@ class tblUser(UserMixin, db.Model):
     def verify_password(self, password):
         return  check_password_hash(self.password_hash, password)
 
+    def rooms(self):
+        return self.room1s.all() + self.room2s.all() + self.room3s.all() + self.room4s.all() +self.room5s.all()
+
 
 class AnonymousUser(AnonymousUserMixin):
     def can(self, permissions):
