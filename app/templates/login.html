@@ -1,13 +1,233 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html>
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>ddweb-vue</title>
+    <script src="../static/jquery.js"></script>
+    <script src="../static/vue.js"></script>
+    <link rel="stylesheet" href="../static/phone.css">
+</head>
 
-{% block body %}
-<div>
-        <form action id="login" method="POST">
-            <label for="username">用户名</label>
-            <input type="text" id="username" placeholder="用户名" name='username'>
-            <label for="password">密码</label>
-            <input type="password" id="password" placeholder="password" name="password">
-            <button type="submit">登录</button>
-        </form>
+
+<body>
+    <div id="app">
+    <a href="{{ url_for('main.test') }}">main.test</a>
+    <a href="{{ url_for('auth.login') }}">Login</a>
+    <a href="{{ url_for('auth.logout') }}">Logout</a>
+    <a href="{{ url_for('main.createroom') }}">CreateRoom</a>
+    <a href="{{ url_for('main.room') }}">JoinRoom</a>
+    <a href="{{ url_for('main.confirmroom') }}">ConfirmRoom</a>
+    <a href="{{ url_for('main.start') }}">Start</a>
+    <div id="test">
+        <p>[[ status ]]</p>
+        <hr>
+        <input type="text" v-model="username" placeholder="username">
+        <input type="text" v-model="password" placeholder="password">
+        <button type="button" @click="login">Login</button>
+        <input type="text" v-model="roomid" placeholder="roomid">
+        <button type="button" @click="join">Join Room</button>
     </div>
-{% endblock %}
+    <div id="action">
+        <button type="button" v-show="notready" @click="ready">准备</button>
+        <button type="button" @click="qiangZhuang(1)">抢庄</button>
+        <button type="button" @click="qiangZhuang(0)">不抢</button>
+        <button type="button" @click="xiazhu(1)">1倍</button>
+        <button type="button" @click="xiazhu(2)">2倍</button>
+        <button type="button" @click="xiazhu(3)">3倍</button>
+        <button type="button" @click="show">亮牌</button>
+    </div>
+    <div id="player1">
+        <comp-player ref="player1" :player-name="players[0]" :my-pai="pai[0]" :mark="marks[0]"></comp-player>
+    </div>
+    <div id="player2">
+        <comp-player ref="player2" :player-name="players[1]" :my-pai="pai[1]" :mark="marks[1]"></comp-player>
+    </div>
+    <div id="player3">
+        <comp-player ref="player3" :player-name="players[2]" :my-pai="pai[2]" :mark="marks[2]"></comp-player>
+    </div>
+    <div id="player4">
+        <comp-player ref="player4" :player-name="players[3]" :my-pai="pai[3]" :mark="marks[3]"></comp-player>
+    </div>
+    </div>
+
+<template id="player">
+    <div>
+        <p>玩家：[[ playerName ]]<span v-if="playerName===$parent.zhuang">庄</span>得分：[[ mark ]]</p>
+        <!--
+        <button type="button" @click="ready">Ready</button>
+        <button type="button" @click="qiangzhuang(1)">抢</button>
+        <button type="button" @click="qiangzhuang(0)">不抢</button>
+        下注:<input type="text" v-model="xiazhu">
+        <button type="button" @click="pai">下注</button>
+        <button type="button" @click="show">Show</button>-->
+        <hr>
+        <div class="card" v-for="(item,index) in myPai" :style="{left:index*24+'px',color:$parent.YANSE[item.slice(0,-2)]}" >
+            <div class="corner top">
+              <span class="number">[[ $parent.NUMBER[item.slice(-2)*1] ]]</span>
+              <span>[[ $parent.HUASE[item.slice(0,-2)] ]]</span>
+            </div>
+            <span class="suit middle_center">[[ $parent.HUASE[item.slice(0,-2)] ]]</span>
+            <div class="corner bottom">
+              <span class="number">[[ $parent.NUMBER[item.slice(-2)*1] ]]</span>
+              <span>[[ $parent.HUASE[item.slice(0,-2)] ]]</span>
+            </div>
+        </div>
+        
+    </div>
+</template>
+
+    <script>
+        var vm = new Vue({
+            el: '#app',
+            delimiters: ["[[", "]]"],
+            data() {
+                return {
+                    msg: 'message',
+                    HUASE: {
+                        'hongt': '♥',
+                        'heit': '♠',
+                        'fangp': '♦',
+                        'meih': '♣'
+                    },
+                    NUMBER: {
+                        1: 'A',
+                        2: '2',
+                        3: '3',
+                        4: '4',
+                        5: '5',
+                        6: '6',
+                        7: '7',
+                        8: '8',
+                        9: '9',
+                        10: '10',
+                        11: 'J',
+                        12: 'Q',
+                        13: 'K'
+                    },
+                    YANSE: {
+                        hongt: 'red',
+                        fangp: 'red',
+                        heit: 'black',
+                        meih: 'black'
+                    },
+                    username: null,
+                    password: null,
+                    //roomid: null,
+                    roomid: 62481,
+                    status: null,
+                    notready: true,
+                    pai: [],
+                    juShu: 0,
+                    marks: []
+                }
+            },
+            computed:{
+                players: function(){
+                    var self = this
+                    if(this.status){
+                        var playerList = self.status[0].users
+                        playerList.length = self.status[0].count
+                        for (i=0;i<self.status[1];i++){
+                            playerList.push(playerList.shift())
+                        }
+                        return playerList
+                    } else{
+                        return []
+                    }
+                },
+                zhuang: function(){
+                    var self = this
+                    if(self.status){
+                        return self.players[self.status[0].zhuang + self.status[1]]
+                    }
+                }
+            },
+            methods:{
+                login: function(){
+                    var self = this
+                    $.post('./auth/login',data={username:self.username,password:self.password},
+                    function(data){
+                        console.log(data)
+                    })
+                },
+                join: function() {
+                    var self = this
+                    $.get('./joinroom',data={roomid: self.roomid},function(data){
+                        sucess:{
+                            self.status = data
+                        }
+                    })
+                },
+                getStatus: function(){
+                    var self = this
+                    if (self.roomid){// 改为登录成功判断
+                        $.get('./status', function(data){
+                            sucess:{
+                                self.status = [JSON.parse(data[0]),data[1]]
+                            }
+                        })
+                    }
+                },
+                ready: function(){
+                    var self = this
+                    if (self.status[0].confirm === Math.pow(self.status[0].count,2)-1){
+                        $.get('/play', function(data){
+                            sucess: {
+                                self.pai=data[0];
+                                self.pai.length = self.status[0].count
+                                for (i=0;i<self.status[1];i++){
+                                    self.pai.push(self.pai.shift())
+                                }
+                                self.juShu = data[1]
+                            }
+                        })
+                    }
+
+                },
+                qiangZhuang: function(yes){
+                    var self = this
+                    $.get('/qiangzhuang',data={qiangzhuang:yes}, function(data){
+                        console.log(data)
+                    })
+                },
+                xiazhu: function(beisu){
+                    var self = this
+                    $.get('/xiazhu',data={xiazhu:beisu}, function(data){
+                        console.log(data)
+                    })
+                },
+                show: function(){
+                    var self = this
+                    $.get('/show', function(data){
+                        sucess: {
+                            self.marks=JSON.parse(data)['marks'];
+                            self.marks.length = self.status[0].count
+                            for (i=0;i<self.status[1];i++){
+                                self.marks.push(self.marks.shift())
+                            }
+                        }
+                    })
+                }
+            },
+            components: {
+                'comp-player':{
+                    template: '#player',
+                    delimiters: ["[[", "]]"],
+                    props: ["playerName","myPai", "mark"],
+                    data () {
+                        return {
+                            
+                        }
+                    }
+                }
+            },
+            mounted: function(){
+                this.getStatus()
+                setInterval(this.getStatus,3000)
+
+            }
+        })
+    </script>
+</body>
+</html>

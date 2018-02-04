@@ -15,6 +15,17 @@ def login():
         print(user)
     return render_template('login.html')
 
+@auth.route('/loginmobile',methods=['GET','POST'])
+def loginmobile():
+    if request.method=='POST':
+        user = tblUser.query.filter_by(name=request.form.get('username')).first()
+        if user is not None and user.verify_password(request.form.get('password')):
+            login_user(user)
+            return jsonify(str(user))
+        else:
+            return 'error'
+    return render_template('loginMobile.html')
+
 @auth.route('/logout')
 @login_required
 def logout():

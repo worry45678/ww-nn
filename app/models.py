@@ -29,6 +29,8 @@ class tblUser(UserMixin, db.Model):
                 self.role_id = tblRole.query.filter_by(permissions=0xff).first().id
             if self.role_id is None:
                 self.role_id = tblRole.query.filter_by(default=True).first().id
+    def __repr__(self):
+        return '''{"id":"%d","name":"%s"}''' %(self.id,self.name)
     
     def can(self, permissions): # 判断角色是否包含所有请求权限，包含则返回True
         return self.role_id is not None and (self.rolename.permissions & permissions) == permissions
@@ -142,11 +144,15 @@ class Room(db.Model):
         user3 = self.user3.name if self.user3 else None
         user4 = self.user4.name if self.user4 else None
         user5 = self.user5.name if self.user5 else None
-        running_paiju = self.paijus.filter_by(finish=0).first()
-        if running_paiju.ready == 2**self.count()-1:
-            zhuang = math.log(running_paiju.zhuang)/math.log(2)
+        if self.paijus.filter_by(finish=0).first():
+            running_paiju = self.paijus.filter_by(finish=0).first()
+            if running_paiju.ready == 2**self.count()-1:
+                zhuang = math.log(running_paiju.zhuang)/math.log(2)
+            else :
+                zhuang = -1 # 没有准备好，返回-1
         else:
-            zhuang = -1
+            zhuang = -2 # 没有牌局，返回-2
+
         return '''{"id": %d,"createtime":"%s","confirm":%d,"users":["%s","%s","%s","%s","%s"],"end":"%s","count":%d,"zhuang":%d}''' \
                 %(self.id,self.createtime,self.confirm, user1, user2, user3, user4, user5, self.end, self.count(), zhuang) 
 

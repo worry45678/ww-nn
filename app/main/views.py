@@ -99,7 +99,7 @@ def index():
 
 @main.route('/phone')
 def phone():
-    return render_template('phone.html')
+    return render_template('phone.html',roomid=session['room_id'],username=current_user.name)
 
 @main.route('/test')
 def test():
@@ -140,29 +140,29 @@ def joinroom():
                     db.session.add(room)
                     db.session.commit()
                     session['room_id'] = room.id
-                    return 'join 2#'
+                    return 'ok'
                 elif room.user3_id is None:
                     room.user3_id = current_user.id
                     db.session.add(room)
                     db.session.commit()
                     session['room_id'] = room.id
-                    return 'join 3#'
+                    return 'ok'
                 elif room.user4_id is None:
                     room.user4_id = current_user.id
                     db.session.add(room)
                     db.session.commit()
                     session['room_id'] = room.id
-                    return 'join 4#'
+                    return 'ok'
                 elif room.user5_id is None:
                     room.user5_id = current_user.id
                     db.session.add(room)
                     db.session.commit()
-                    session['room_id'] = room.id
+                    session['ok'] = room.id
                     return 'join 5#'
             else:
                 session['room_id'] = room.id
-                return jsonify(room.userpos(current_user))
-        else: 'no room'
+                return 'ok'
+        else: 'no position'
     return 'joinroom'
 
 @main.route('/confirmroom')
@@ -181,7 +181,7 @@ def start():
     """
     if Room.query.filter_by(id=session['room_id']).first():
         room = Room.query.filter_by(id=session['room_id']).first()
-        if room.confirm == 2**(room.count())-1:
+        if room.confirm == 2**(room.count())-1 and room.paijus is None: # 所有玩家均已确认且未生成牌局
             new_puke = PUKE.copy()
             for i in range(20):
                 random.shuffle(new_puke)
@@ -192,14 +192,14 @@ def start():
             return jsonify(r)
         else:
             return 'somebody not ready'
-    return 'start'
+    return 'no room'
 
 @main.route('/play')
 def play():
     """
     准备结束，各玩家获取牌组,待修改，只返回本玩家的前4张牌，亮牌时再全部返回
     """
-    player = tblUser.query.filter_by(id=request.args.get('playerid')).first()
+    player = tblUser.query.filter_by(id=current_user.id).first()
     room = Room.query.filter_by(id=session['room_id']).first()
     pai = Paiju.query.filter_by(room_id=session['room_id']).filter_by(finish=0).first()
     pai0 = Paiju.query.filter_by(room_id=session['room_id']).first()
@@ -208,7 +208,7 @@ def play():
 
 @main.route('/qiangzhuang')
 def qiangzhuang():
-    player = tblUser.query.filter_by(id=request.args.get('playerid')).first()
+    player = tblUser.query.filter_by(id=current_user.id).first()
     room = Room.query.filter_by(id=session['room_id']).first()
     userpos = room.userpos(player)
     # pos = int(math.log(userpos)/math.log(2) + 1)
@@ -234,7 +234,7 @@ def xiazhu():
     """
     下注，庄先确定倍数，前端获取到庄的倍数后，其他玩家才可以下注
     """
-    player = tblUser.query.filter_by(id=request.args.get('playerid')).first()
+    player = tblUser.query.filter_by(id=current_user.id).first()
     room = Room.query.filter_by(id=session['room_id']).first()
     userpos = room.userpos(player)
     pai = Paiju.query.filter_by(room_id=session['room_id']).filter_by(finish=0).first()
@@ -262,32 +262,36 @@ def show():
     """
     各玩家亮牌，本局结束，算分，Paiju 中finish字段标记结束
     """
-    player = tblUser.query.filter_by(id=request.args.get('playerid')).first()
+    
     room = Room.query.filter_by(id=session['room_id']).first()
     pai = Paiju.query.filter_by(room_id=session['room_id']).filter_by(finish=0).first()
-    pai.done= pai.done | room.userpos(player)
-    if pai.done == 2**room.count()-1:
-        pai.finish = True
-    db.session.add(pai)
-    db.session.commit()
-    if room.userpos(player) == 1:
-        return pai.marks()
-    elif room.userpos(player) ==2:
-        return pai.marks()
-    elif room.userpos(player) == 4:
-        return pai.marks()
-    elif room.userpos(player) == 8:
-        return pai.marks()
-    elif room.userpos(player) == 16:
-        return pai.marks()
-    return '亮牌，本局结束'
+    if pai.xiazhudone != 2**room.count()-1:#  下注结束，计算得分
+        return 'error'
+    else:
+        player = tblUser.query.filter_by(id=current_user.id).first()
+        pai.done= pai.done | room.userpos(player)
+        if pai.done == 2**room.count()-1:
+            pai.finish = True
+        db.session.add(pai)
+        db.session.commit()
+        if room.userpos(player) == 1:
+            return pai.marks()
+        elif room.userpos(player) ==2:
+            return pai.marks()
+        elif room.userpos(player) == 4:
+            return pai.marks()
+        elif room.userpos(player) == 8:
+            return pai.marks()
+        elif room.userpos(player) == 16:
+            return pai.marks()
+        return '亮牌，本局结束'
 
 @main.route('/status')
 def status():
     """
     返回房间状态，接受roomid，userid为参数
     """
-    player = tblUser.query.filter_by(id=request.args.get('playerid')).first()
-    room = Room.query.filter_by(id=request.args.get('roomid')).first()
+    player = tblUser.query.filter_by(id=current_user.id).first()
+    room = Room.query.filter_by(id=session.get('room_id')).first()
     pos = math.log(room.userpos(player))/math.log(2)
     return jsonify(room.status(),pos)

@@ -12,23 +12,18 @@
 
 <body>
     <div id="app">
-    <a href="{{ url_for('main.test') }}">main.test</a>
+    <p>{{ username }}--{{roomid}}</p>
     <a href="{{ url_for('auth.login') }}">Login</a>
     <a href="{{ url_for('auth.logout') }}">Logout</a>
     <a href="{{ url_for('main.createroom') }}">CreateRoom</a>
     <a href="{{ url_for('main.room') }}">JoinRoom</a>
     <a href="{{ url_for('main.confirmroom') }}">ConfirmRoom</a>
     <a href="{{ url_for('main.start') }}">Start</a>
-    <div id="test">
-        <p>[[ status ]]</p>
-        <hr>
-        <input type="text" v-model="username" placeholder="username">
-        <input type="text" v-model="password" placeholder="password">
-        <button type="button" @click="login">Login</button>
-        <input type="text" v-model="roomid" placeholder="roomid">
-        <button type="button" @click="join">Join Room</button>
-    </div>
+
     <div id="action">
+        <button type="button" @click="confirm">确认</button>
+        <button>离开</button>
+        <button type="button" @click="start">开始</button>
         <button type="button" v-show="notready" @click="ready">准备</button>
         <button type="button" @click="qiangZhuang(1)">抢庄</button>
         <button type="button" @click="qiangZhuang(0)">不抢</button>
@@ -54,13 +49,6 @@
 <template id="player">
     <div>
         <p>玩家：[[ playerName ]]<span v-if="playerName===$parent.zhuang">庄</span>得分：[[ mark ]]</p>
-        <!--
-        <button type="button" @click="ready">Ready</button>
-        <button type="button" @click="qiangzhuang(1)">抢</button>
-        <button type="button" @click="qiangzhuang(0)">不抢</button>
-        下注:<input type="text" v-model="xiazhu">
-        <button type="button" @click="pai">下注</button>
-        <button type="button" @click="show">Show</button>-->
         <hr>
         <div class="card" v-for="(item,index) in myPai" :style="{left:index*24+'px',color:$parent.YANSE[item.slice(0,-2)]}" >
             <div class="corner top">
@@ -114,14 +102,13 @@
                     username: null,
                     password: null,
                     //roomid: null,
-                    //playerid: null,
-                    playerid: 2, // 初始值，测试用
                     roomid: 62481,
                     status: null,
                     notready: true,
                     pai: [],
                     juShu: 0,
-                    marks: []
+                    marks: [],
+                    isLogin: false
                 }
             },
             computed:{
@@ -146,35 +133,26 @@
                 }
             },
             methods:{
-                login: function(){
+                getStatus: function(){
                     var self = this
-                    $.post('./auth/login',data={username:self.username,password:self.password},
-                    function(data){
-                        self.playerid = data
-                    })
-                },
-                join: function() {
-                    var self = this
-                    $.get('./joinroom',data={roomid: self.roomid},function(data){
+                    $.get('./status', function(data){
                         sucess:{
-                            self.status = data
+                            self.status = [JSON.parse(data[0]),data[1]]
                         }
                     })
                 },
-                getStatus: function(){
-                    var self = this
-                    if (self.roomid && self.playerid){
-                        $.get('./status', data={roomid:self.roomid,playerid:self.playerid}, function(data){
-                            sucess:{
-                                self.status = [JSON.parse(data[0]),data[1]]
-                            }
-                        })
-                    }
+                confirm: function(){
+                    $.get('/confirmroom').done(console.log('confirm room'))
+                },
+                start: function(){
+                    $.get('/start',function(data){
+                        complete:{console.log(data)}
+                    })
                 },
                 ready: function(){
                     var self = this
                     if (self.status[0].confirm === Math.pow(self.status[0].count,2)-1){
-                        $.get('/play', data={playerid:self.playerid}, function(data){
+                        $.get('/play', function(data){
                             sucess: {
                                 self.pai=data[0];
                                 self.pai.length = self.status[0].count
@@ -184,29 +162,35 @@
                                 self.juShu = data[1]
                             }
                         })
+                    }else{
+                        console.log('somebody not ready')
                     }
 
                 },
                 qiangZhuang: function(yes){
                     var self = this
-                    $.get('/qiangzhuang',data={playerid:self.playerid,qiangzhuang:yes}, function(data){
+                    $.get('/qiangzhuang',data={qiangzhuang:yes}, function(data){
                         console.log(data)
                     })
                 },
                 xiazhu: function(beisu){
                     var self = this
-                    $.get('/xiazhu',data={playerid:self.playerid, xiazhu:beisu}, function(data){
+                    $.get('/xiazhu',data={xiazhu:beisu}, function(data){
                         console.log(data)
                     })
                 },
                 show: function(){
                     var self = this
-                    $.get('/show',data={playerid:self.playerid}, function(data){
+                    $.get('/show', function(data){
                         sucess: {
-                            self.marks=JSON.parse(data)['marks'];
-                            self.marks.length = self.status[0].count
-                            for (i=0;i<self.status[1];i++){
-                                self.marks.push(self.marks.shift())
+                            if (data!=='error'){
+                                self.marks=JSON.parse(data)['marks'];
+                                self.marks.length = self.status[0].count
+                                for (i=0;i<self.status[1];i++){
+                                    self.marks.push(self.marks.shift())
+                                }
+                            }else{
+                                console.log('somebody not xiazhu')
                             }
                         }
                     })

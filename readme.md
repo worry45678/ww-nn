@@ -40,3 +40,7 @@
     8. user1_xiazhu 1-5 号玩家下注金额
     9. xiazhudone 判断是否全部下注，达到2**room.count()-1表示全部确认
     10. user1_mark 计算各玩家得分
+---
+## 接口
+1. 用户登录后，登录用户作为判断身份的依据，current_user，保存在cookies中
+2. 创建或加入房间后，房间号保存在session中
