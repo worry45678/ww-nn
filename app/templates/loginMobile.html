@@ -6,36 +6,62 @@
     <title>登录</title>
     <script src="../static/jquery.js"></script>
     <script src="../static/vue.js"></script>
+    <link rel="stylesheet" href="../static/weui.min.css">
     <link rel="stylesheet" href="../static/phone.css">
 </head>
 
 <body>
     <div id="app">
-    <!--
-    <a href="{{ url_for('main.test') }}">main.test</a>
-    <a href="{{ url_for('auth.login') }}">Login</a>
-    <a href="{{ url_for('auth.logout') }}">Logout</a>
-    <a href="{{ url_for('main.createroom') }}">CreateRoom</a>
-    <a href="{{ url_for('main.room') }}">JoinRoom</a>
-    <a href="{{ url_for('main.confirmroom') }}">ConfirmRoom</a>
-    <a href="{{ url_for('main.start') }}">Start</a>-->
+
     <p>欢迎登录</p>
     <hr>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
     <div v-if="!isLogin" id="login">
-        <form method="POST" class="login">
-        <input type="text" name="username" v-model="username" placeholder="username">
-        <input type="password" name="password" v-model="password" placeholder="password">
 
-        <button type="button" @click="login">Login</button>
+        <div class="weui_cells_form">
+        <form method="POST" class="login">
+        <div class="weui_cell">
+            <div class="weui_cell_hd">
+                <label class="weui_label">Name:</label>
+            </div>
+            <div class="weui_cell_bd">
+                    <input class="weui_input" type="text" name="username" v-model="username" placeholder="username">
+            </div>
+        </div>
+        <div class="weui_cell">
+            <div class="weui_cell_hd">
+                <label class="weui_label">Password:</label>
+            </div>
+            <div class="weui_cell_bd">
+                    <input class="weui_input" type="password" name="password" v-model="password" placeholder="password">
+            </div>
+        </div>
+        <a href="javascript:;" class="weui_btn weui_btn_primary" @click="login">Login</a>
     </form>
     </div>
-        <div v-else id="login">
-            <button type="button" @click="createroom">CreateRoom</button>
-            <hr>
-            <label>房间号：</label>
-            <input type="text" v-model="joinid">
-            <button type="button" @click="joinroom(joinid)">JoinRoom</button>
+    </div>
+        <div v-else>
+            <div class="weui_cells_form">
+            <form>
+                <a class="weui_btn weui_btn_primary" href="javascript:;" @click="createroom">Create Room</a>
+
+            <div style="margin-top:18%" class="weui_cell">
+                <div class="weui_cell_hd">
+                    <label class="weui_label">房间号：</label>
+                </div>
+                <div class="weui_cell_bd">
+                    <input class="weui_input" type="text" v-model="joinid">
+                </div>
+            </div>
+            <a href="javascript:;" class="weui_btn weui_btn_primary" @click="joinroom(joinid)">Join Room</a>
+            </form>
         </div>
+    </div>
     </div>
 
     <script>

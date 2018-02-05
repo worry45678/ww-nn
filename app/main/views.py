@@ -109,18 +109,6 @@ def test():
 def room():
     return render_template('room.html')
 
-@main.route('/fapai')
-def fapai():
-    """
-    test用，无用
-    """
-    new_puke = PUKE.copy()
-    paixu=[]
-    for i in range(20):
-        paixu = paixu + [random.choice(new_puke)]
-        new_puke.remove(paixu[-1])
-    return jsonify(paixu)
-
 @main.route('/createroom')
 def createroom():
     room = Room(id=createid(), user1_id=current_user.id)
@@ -170,18 +158,22 @@ def confirmroom():
     if Room.query.filter_by(id=session['room_id']).first():
         room = Room.query.filter_by(id=session['room_id']).first()
         room.confirm = room.confirm | room.userpos(current_user)
+        if room.confirm == 2**(room.count())-1:
+            room.status = 'comfirmed'
+        else:
+            room.status = 'confirming'
         db.session.add(room)
         db.session.commit()
-    return 'confirmroom'
+        return '%d confirmed' %room.confirm
 
 @main.route('/start')
 def start():
     """
-    生成本房间的所有牌，开始游戏
+    开始
     """
     if Room.query.filter_by(id=session['room_id']).first():
         room = Room.query.filter_by(id=session['room_id']).first()
-        if room.confirm == 2**(room.count())-1 and room.paijus is None: # 所有玩家均已确认且未生成牌局
+        if room.status == 'comfirmed' and room.paijus.first() is None: # 所有玩家均已确认且未生成牌局
             new_puke = PUKE.copy()
             for i in range(20):
                 random.shuffle(new_puke)
@@ -189,10 +181,13 @@ def start():
                 new_paiju = Paiju(room_id=room.id, paixu=json.dumps(r))
                 db.session.add(new_paiju)
                 db.session.commit()
-            return jsonify(r)
+            room.status = 'started'
+            return 'create paiju'
         else:
-            return 'somebody not ready'
-    return 'no room'
+            'paiju excited'
+    else:
+        return 'no room'
+
 
 @main.route('/play')
 def play():
@@ -217,6 +212,7 @@ def qiangzhuang():
     if pai.ready == 2**room.count()-1:#判断是否所有人都已抢庄，返回抢庄成功的
         y = [i for i in [pai.zhuang & int(2**(i)) for i in range(5)] if i>0]
         pai.zhuang = random.choice(y)
+        pai.status = 'zhuangxiazhu'
         db.session.add(pai)
         db.session.commit()
         return jsonify(pai.zhuang)
@@ -239,6 +235,8 @@ def xiazhu():
     userpos = room.userpos(player)
     pai = Paiju.query.filter_by(room_id=session['room_id']).filter_by(finish=0).first()
     pai.xiazhudone = pai.xiazhudone | userpos
+    if pai.xiazhudone == pai.zhuang: #如果庄已经下注
+        pai.status = 'xiazhu'
     if userpos == 1:
         pai.user1_xiazhu = request.args.get('xiazhu')
     elif userpos == 2:
@@ -250,9 +248,11 @@ def xiazhu():
     elif userpos == 16:
         pai.user5_xiazhu = request.args.get('xiazhu')
     else:
-        return '无该玩家'
+        return 'no player'
     if pai.xiazhudone == 2**room.count()-1:#  下注结束，计算得分
+        pai.status = 'show'
         calcmark(pai)
+        print('calc')
     db.session.add(pai)
     db.session.commit()
     return '下注成功'
@@ -265,26 +265,23 @@ def show():
     
     room = Room.query.filter_by(id=session['room_id']).first()
     pai = Paiju.query.filter_by(room_id=session['room_id']).filter_by(finish=0).first()
-    if pai.xiazhudone != 2**room.count()-1:#  下注结束，计算得分
-        return 'error'
-    else:
-        player = tblUser.query.filter_by(id=current_user.id).first()
-        pai.done= pai.done | room.userpos(player)
-        if pai.done == 2**room.count()-1:
-            pai.finish = True
-        db.session.add(pai)
-        db.session.commit()
-        if room.userpos(player) == 1:
-            return pai.marks()
-        elif room.userpos(player) ==2:
-            return pai.marks()
-        elif room.userpos(player) == 4:
-            return pai.marks()
-        elif room.userpos(player) == 8:
-            return pai.marks()
-        elif room.userpos(player) == 16:
-            return pai.marks()
-        return '亮牌，本局结束'
+    player = tblUser.query.filter_by(id=current_user.id).first()
+    pai.done= pai.done | room.userpos(player)
+    if pai.done == 2**room.count()-1:
+        pai.finish = True
+    db.session.add(pai)
+    db.session.commit()
+    if room.userpos(player) == 1:
+        return pai.marks()
+    elif room.userpos(player) ==2:
+        return pai.marks()
+    elif room.userpos(player) == 4:
+        return pai.marks()
+    elif room.userpos(player) == 8:
+        return pai.marks()
+    elif room.userpos(player) == 16:
+        return pai.marks()
+    return '亮牌，本局结束'
 
 @main.route('/status')
 def status():
@@ -294,4 +291,4 @@ def status():
     player = tblUser.query.filter_by(id=current_user.id).first()
     room = Room.query.filter_by(id=session.get('room_id')).first()
     pos = math.log(room.userpos(player))/math.log(2)
-    return jsonify(room.status(),pos)
+    return jsonify(room.getStatus(player))

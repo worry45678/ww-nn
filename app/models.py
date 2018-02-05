@@ -105,6 +105,7 @@ class Room(db.Model):
     user5_id = db.Column(db.Integer, db.ForeignKey('tblUser.ID'))
     end = db.Column('end', db.Boolean, default=False)
     paijus = db.relationship('Paiju', backref='roomname', lazy='dynamic')
+    status = db.Column('status',db.Text, default=0)
 
     def userpos(self, user):
         if self.user1_id == user.id:
@@ -141,23 +142,26 @@ class Room(db.Model):
         return '''{"id": "%s","createtime":"%s","confirm":"%s","user1":"%s","user2":"%s","user3":"%s","user4":"%s","user5":"%s","end":"%s"}''' \
                %(self.id,self.createtime,self.confirm, user1, user2, user3, user4, user5, self.end) 
 
-    def status(self):
+    def getStatus(self,current_user):
         user1 = self.user1.name if self.user1 else None
         user2 = self.user2.name if self.user2 else None
         user3 = self.user3.name if self.user3 else None
         user4 = self.user4.name if self.user4 else None
         user5 = self.user5.name if self.user5 else None
+        p = {0:-1,1:0,2:1,4:2,8:3,16:4}
         if self.paijus.filter_by(finish=0).first():
             running_paiju = self.paijus.filter_by(finish=0).first()
-            if running_paiju.ready == 2**self.count()-1:
-                zhuang = math.log(running_paiju.zhuang)/math.log(2)
-            else :
-                zhuang = -1 # 没有准备好，返回-1
+            paijustatus = running_paiju.status
+            zhuang = p[running_paiju.zhuang]
+            ready = running_paiju.ready
         else:
-            zhuang = -2 # 没有牌局，返回-2
+            paijustatus = -1
+            zhuang = -1
+            ready = -1
+        userpos = math.log(self.userpos(current_user))/math.log(2)
 
-        return '''{"id": %d,"createtime":"%s","confirm":%d,"users":["%s","%s","%s","%s","%s"],"end":"%s","count":%d,"zhuang":%d}''' \
-                %(self.id,self.createtime,self.confirm, user1, user2, user3, user4, user5, self.end, self.count(), zhuang) 
+        return '''{"id": %d,"createtime":"%s","confirm":%d,"users":["%s","%s","%s","%s","%s"],"end":"%s","count":%d,"zhuang":%d,"roomstatus":"%s","paijustatus":"%s","ready":"%s","userpos":"%s"}''' \
+                %(self.id,self.createtime,self.confirm, user1, user2, user3, user4, user5, self.end, self.count(), zhuang, self.status, paijustatus, ready, userpos) 
 
 class Paiju(db.Model):
     __table__name = 'paiju'
@@ -180,6 +184,7 @@ class Paiju(db.Model):
     user3_mark = db.Column(db.Integer, default=0)
     user4_mark = db.Column(db.Integer, default=0)
     user5_mark = db.Column(db.Integer, default=0)
+    status = db.Column('status', db.Text, default='ready')
     
     def marks(self):
         return '''{"id":%d,"marks":["%d","%d","%d","%d","%d"]}'''\

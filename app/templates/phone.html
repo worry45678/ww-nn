@@ -13,24 +13,42 @@
 <body>
     <div id="app">
     <p>{{ username }}--{{roomid}}</p>
-    <a href="{{ url_for('auth.login') }}">Login</a>
-    <a href="{{ url_for('auth.logout') }}">Logout</a>
-    <a href="{{ url_for('main.createroom') }}">CreateRoom</a>
-    <a href="{{ url_for('main.room') }}">JoinRoom</a>
-    <a href="{{ url_for('main.confirmroom') }}">ConfirmRoom</a>
-    <a href="{{ url_for('main.start') }}">Start</a>
-
+    <p>[[ status.roomstatus ]]--[[ status.paijustatus ]]</p>
     <div id="action">
         <button type="button" @click="confirm">确认</button>
         <button>离开</button>
         <button type="button" @click="start">开始</button>
-        <button type="button" v-show="notready" @click="ready">准备</button>
+        <button type="button" @click="ready">准备</button>
         <button type="button" @click="qiangZhuang(1)">抢庄</button>
         <button type="button" @click="qiangZhuang(0)">不抢</button>
         <button type="button" @click="xiazhu(1)">1倍</button>
         <button type="button" @click="xiazhu(2)">2倍</button>
         <button type="button" @click="xiazhu(3)">3倍</button>
         <button type="button" @click="show">亮牌</button>
+    </div>
+    <div class="action">
+        <div v-show="status.roomstatus==='confirming'">
+            <button type="button" @click="confirm">坐下</button>
+            <button type="button">离开</button>
+        </div>
+        <div v-show="status.roomstatus==='confirmed'">
+            <button type="button" @click="start">开始</button>
+        </div>
+        <div v-show="status.paijustatus==='ready' & !canQiangZhuang">
+            <button type="button" @click="ready">发牌</button>
+        </div>
+        <div v-show="canQiangZhuang">
+            <button type="button" @click="qiangZhuang(1)">抢</button>
+            <button type="button" @click="qiangZhuang(0)">不抢</button>
+        </div>
+        <div v-show="canxiazhu">
+            <button type="button" @click="xiazhu(1)">1倍</button>
+            <button type="button" @click="xiazhu(2)">2倍</button>
+            <button type="button" @click="xiazhu(3)">3倍</button>
+        </div>
+        <div v-show="status.paijustatus==='show'">
+            <button type="button" @click="show">Show</button>
+        </div>
     </div>
     <div id="player1">
         <comp-player ref="player1" :player-name="players[0]" :my-pai="pai[0]" :mark="marks[0]"></comp-player>
@@ -101,23 +119,34 @@
                     },
                     username: null,
                     password: null,
-                    //roomid: null,
-                    roomid: 62481,
-                    status: null,
-                    notready: true,
+                    roomid: null,
+                    status: {
+                        confirm: null,
+                        count: 0,
+                        createtime: null,
+                        end: false,
+                        id: null,
+                        paijustatus: null,
+                        ready: 0,
+                        roomstatus: null,
+                        userpos: null,
+                        users: [],
+                        zhuang: 0
+                    },
                     pai: [],
                     juShu: 0,
                     marks: [],
-                    isLogin: false
+                    isLogin: false,
+                    canQiangZhuang: false
                 }
             },
             computed:{
                 players: function(){
                     var self = this
                     if(this.status){
-                        var playerList = self.status[0].users
-                        playerList.length = self.status[0].count
-                        for (i=0;i<self.status[1];i++){
+                        var playerList = self.status.users
+                        playerList.length = self.status.count
+                        for (i=0;i<self.status.userpos;i++){
                             playerList.push(playerList.shift())
                         }
                         return playerList
@@ -128,7 +157,15 @@
                 zhuang: function(){
                     var self = this
                     if(self.status){
-                        return self.players[self.status[0].zhuang + self.status[1]]
+                        return self.players[self.status.zhuang - self.status.userpos]
+                    }
+                },
+                canxiazhu: function(){
+                    var self = this
+                    if (self.status.zhuang - self.status.userpos===0 & self.status.paijustatus==='zhuangxiazhu'){
+                        return true
+                    }else if(self.status.zhuang-self.status.userpos!==0 & self.status.paijustatus==='xiazhu'){
+                        return true
                     }
                 }
             },
@@ -137,12 +174,14 @@
                     var self = this
                     $.get('./status', function(data){
                         sucess:{
-                            self.status = [JSON.parse(data[0]),data[1]]
+                            self.status = JSON.parse(data)
                         }
                     })
                 },
                 confirm: function(){
-                    $.get('/confirmroom').done(console.log('confirm room'))
+                    $.get('/confirmroom', function(data){
+                        complete:{console.log(data)}
+                    })
                 },
                 start: function(){
                     $.get('/start',function(data){
@@ -151,26 +190,24 @@
                 },
                 ready: function(){
                     var self = this
-                    if (self.status[0].confirm === Math.pow(self.status[0].count,2)-1){
-                        $.get('/play', function(data){
-                            sucess: {
-                                self.pai=data[0];
-                                self.pai.length = self.status[0].count
-                                for (i=0;i<self.status[1];i++){
-                                    self.pai.push(self.pai.shift())
-                                }
-                                self.juShu = data[1]
+                    $.get('/play', function(data){
+                        sucess: {
+                            self.pai=data[0];
+                            self.pai.length = self.status.count
+                            for (i=0;i<self.status.userpos;i++){
+                                self.pai.push(self.pai.shift())
                             }
-                        })
-                    }else{
-                        console.log('somebody not ready')
-                    }
+                            self.juShu = data[1]
+                            self.canQiangZhuang = true
+                        }
+                    })
 
                 },
                 qiangZhuang: function(yes){
                     var self = this
                     $.get('/qiangzhuang',data={qiangzhuang:yes}, function(data){
                         console.log(data)
+                        self.canQiangZhuang = false
                     })
                 },
                 xiazhu: function(beisu){
@@ -185,8 +222,8 @@
                         sucess: {
                             if (data!=='error'){
                                 self.marks=JSON.parse(data)['marks'];
-                                self.marks.length = self.status[0].count
-                                for (i=0;i<self.status[1];i++){
+                                self.marks.length = self.status.count
+                                for (i=0;i<self.status.userpos;i++){
                                     self.marks.push(self.marks.shift())
                                 }
                             }else{
