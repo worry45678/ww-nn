@@ -4,6 +4,9 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate, MigrateCommand
 from flask_login import LoginManager
 from config import config
+from flask_socketio import SocketIO
+
+socketio = SocketIO()
 
 
 #bootstrap = Bootstrap()
@@ -32,4 +35,5 @@ def create_app(config_name):  # 注册app的函数
     from .auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint, url_prefix='/auth') # 注册认证用户蓝本,带上路由地址前缀
 
+    socketio.init_app(app)
     return app

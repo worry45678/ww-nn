@@ -97,6 +97,27 @@ def for_moderators_only():
 def index():
     return render_template('index.html')
 
+@main.route('/socketroom',methods=['POST','GET'])
+def socketroom():
+    """Login form to enter a room."""
+    if request.method == 'POST':
+        session['name'] = request.args.get('name')
+        session['room'] = request.args.get('room')
+        return redirect(url_for('.chat'))
+    elif request.method == 'GET':
+        return render_template('socketroom.html')
+
+@main.route('/chat')
+def chat():
+    """Chat room. The user's name and room must be stored in
+    the session."""
+    name = session.get('name', '')
+    room = session.get('room', '')
+    if name == '' or room == '':
+        return redirect(url_for('.index'))
+    return render_template('chat.html', name=name, room=room)
+
+
 @main.route('/phone')
 def phone():
     return render_template('phone.html',roomid=session['room_id'],username=current_user.name)
@@ -290,5 +311,4 @@ def status():
     """
     player = tblUser.query.filter_by(id=current_user.id).first()
     room = Room.query.filter_by(id=session.get('room_id')).first()
-    pos = math.log(room.userpos(player))/math.log(2)
     return jsonify(room.getStatus(player))

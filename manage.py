@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import os
-from app import create_app, db
+from app import create_app, db, socketio
 from app.models import tblUser, tblRole, Room, Paiju
 from flask_script import Manager, Shell
 from flask_migrate import MigrateCommand
@@ -21,4 +21,5 @@ manager.add_command('db', MigrateCommand)
 
 
 if __name__ == '__main__':
-    manager.run()
+    #manager.run()
+    socketio.run(app)
