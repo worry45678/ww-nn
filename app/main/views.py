@@ -1,7 +1,7 @@
 import json
 import math
 from flask import render_template, session, redirect, url_for, request, send_from_directory, jsonify, flash
-from flask_login import current_user, login_required
+from flask_login import current_user, login_required, login_user
 from . import main, PUKE, HUASE_NUMBER, BEI_LV
 from datetime import datetime, timedelta
 from .. import db
@@ -97,25 +97,34 @@ def for_moderators_only():
 def index():
     return render_template('index.html')
 
-@main.route('/socketroom',methods=['POST','GET'])
-def socketroom():
+@main.route('/socketlogin',methods=['POST','GET'])
+def socketlogin():
     """Login form to enter a room."""
-    if request.method == 'POST':
-        session['name'] = request.args.get('name')
-        session['room'] = request.args.get('room')
-        return redirect(url_for('.chat'))
-    elif request.method == 'GET':
-        return render_template('socketroom.html')
+    if request.method=='POST':
+        user = tblUser.query.filter_by(name=request.form.get('name')).first()
+        if user is not None and user.verify_password(request.form.get('password')):
+            login_user(user)
+            return redirect(url_for('.room'))
+        else:
+            return 'error'
+    return render_template('/socketio/login.html')
+
 
 @main.route('/chat')
 def chat():
     """Chat room. The user's name and room must be stored in
     the session."""
-    name = session.get('name', '')
-    room = session.get('room', '')
+    name = session.get('name')
+    room = session.get('room')
     if name == '' or room == '':
         return redirect(url_for('.index'))
-    return render_template('chat.html', name=name, room=room)
+    return render_template('/socketio/chat.html', room=room)
+
+@main.route('/room')
+def room():
+    name = current_user.name
+    session['room_id'] = '123'
+    return render_template('/socketio/room.html',roomid=session['room_id'],username=current_user.name)
 
 
 @main.route('/phone')
@@ -126,9 +135,6 @@ def phone():
 def test():
     return render_template('test.html')
 
-@main.route('/room')
-def room():
-    return render_template('room.html')
 
 @main.route('/createroom')
 def createroom():

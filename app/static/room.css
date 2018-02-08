@@ -1,0 +1,139 @@
+
+
+html, body {
+    height: 100%;
+    margin: 0px;
+    padding: 0px;
+}
+p {
+    margin: 0px;
+    padding: 2px;
+}
+#app {
+    color: #eee;
+    height: 100%;
+    background: -webkit-radial-gradient(rgb(16, 173, 1), rgb(6, 110, 6), rgb(3, 82, 3)); /* Safari 5.1 - 6.0 */
+    background: -o-radial-gradient(rgb(16, 173, 1), rgb(6, 110, 6), rgb(3, 82, 3)); /* Opera 11.6 - 12.0 */
+    background: -moz-radial-gradient(rgb(16, 173, 1), rgb(6, 110, 6), rgb(3, 82, 3)); /* Firefox 3.6 - 15 */
+    background: radial-gradient(rgb(14, 150, 2), rgb(6, 110, 6), rgb(3, 61, 3)); /* 标准的语法（必须放在最后） */
+}
+#test {
+    width: 40%;
+    position: absolute;
+    left: 0px;
+    bottom: 0px;
+    z-index: 100;
+}
+#action {
+    position: absolute;
+    right: 0px;
+    bottom: 0px;
+    width: 20%;
+    z-index: 100;
+}
+.action {
+    position: absolute;
+    left: 32%;
+    bottom: 25%;
+    width: 36%;
+    z-index: 100;
+}
+.room {
+    position: absolute;
+    left: 32%;
+    bottom: 50%;
+    width: 36%;
+    z-index: 200;
+}
+.action button {
+border-bottom-color:rgba(0, 0, 0, 0.2);
+border-bottom-left-radius:5px;
+border-bottom-right-radius:5px;
+border-bottom-style:solid;
+border-bottom-width:1px;
+border-image-outset:0px;
+border-image-repeat:stretch;
+border-image-slice:100%;
+border-image-source:none;
+border-image-width:1;
+border-left-color:rgba(0, 0, 0, 0.2);
+border-left-style:solid;
+border-left-width:1px;
+border-right-color:rgba(0, 0, 0, 0.2);
+border-right-style:solid;
+border-right-width:1px;
+border-top-color:rgba(0, 0, 0, 0.2);
+border-top-left-radius:5px;
+border-top-right-radius:5px;
+border-top-style:solid;
+border-top-width:1px;
+box-sizing:border-box;
+height:30px;
+width:32%;
+margin: 0px 8%;
+background-color: #4682B4;
+color: #fff
+}
+#player1 {
+    z-index: 0;
+    width: 50%;
+    height: 150px;
+    position: absolute;
+    bottom: 0px;
+    left: 25%;
+    margin: 0px 5px;
+}
+#player2 {
+    width: 200px;
+    height: 150px;
+    position: absolute;
+    top: 35%;
+    left: -25px;
+    transform: rotateZ(90deg)
+}
+#player3 {
+    width: 50%;
+    height: 150px;
+    position: absolute;
+    top: 0px;
+    left: 25%;
+}
+#player4 {
+    width: 200px;
+    height: 150px;
+    position: absolute;
+    top: 35%;
+    right: -25px;
+    transform: rotateZ(-90deg)
+}
+
+
+
+.card {
+    /*font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;*/
+    font-family:Segoe UI Symbol, sans-serif;
+    background-color: #fff;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    -moz-box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    -webkit-box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    float: left;
+    height: 90px;
+    position: absolute;
+    color: rgb(29, 29, 29);
+    width: 60px;
+}
+  .card.fangp, .card.hongt { color: red; }
+  .card.meih, .card.heit { color: rgb(27, 27, 27); }
+  
+  .card .corner { line-height: 1; overflow: hidden; position: absolute; text-align: center; }
+  .card .corner span { display: block; font-size: 20px; font-weight: bold; }
+  .card .corner .number { font-size: 18px;}
+  .card .corner.top { left: 3px; top: 3px; }
+  .card .corner.bottom { bottom: 3px; right: 3px; -moz-transform: rotate(180deg); -webkit-transform: rotate(180deg); }
+  
+  .card .suit { font-size: 30px; font-weight: bold; overflow: hidden; position: absolute; text-align: center; }
+
+  .card .middle_center { left: 19px; top: 22px; }
+
+/* 用于登录界面的样式*/
